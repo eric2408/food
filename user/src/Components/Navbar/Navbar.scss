@@ -1,0 +1,190 @@
+@import "../../App.scss";
+
+.navbar {
+  @include themify($themes) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    height: 50px;
+    border-bottom: 1px solid themed("border");
+    position: sticky;
+    top: 0;
+    background-color: themed("bg");
+    color:themed("textColor");
+    z-index: 999;
+
+    .left {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+
+      img {
+        width: 177px;
+        height: 100px;
+        margin-top: 5px;
+      }
+
+      .search {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid themed("border");
+        border-radius: 5px;
+        padding: 5px;
+
+        input {
+          border: none;
+          width: 500px;
+          background-color: transparent;
+          color: themed("textColor");
+
+          @include mobile{
+            display: none;
+          }
+
+          @include tablet{
+            width: 200px;
+          }
+        }
+      }
+
+    }
+
+    .searchContent{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 500;
+      position: relative;
+      margin-top: 650px;
+
+
+      .contain{
+        position: absolute;
+        font-size: 14px;
+        
+        .down{
+          margin-top: 2px;
+          margin-left: -700px;
+          padding: 0.75rem;
+          padding-top: 20px;
+          border:1px solid;
+          border-color:themed("bg"); 
+          border-radius: .25rem;
+          background-color: themed("bg");
+          -webkit-box-shadow: 0px 0px 15px 1px rgba(0, 0, 0, 0.09);
+          -moz-box-shadow: 0px 0px 15px 1px rgba(0, 0, 0, 0.09);
+          box-shadow: 0px 0px 15px 1px rgba(0, 0, 0, 0.09);
+          display: flex;
+          align-items: center;
+          gap: 20px;
+          
+
+          img{
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+          }
+          
+          .name{
+            padding: 5px;
+            padding-right: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            margin-top: 10px;
+            color:themed("textColor");
+          }
+        }
+      }
+    }
+
+    .right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+
+      @include mobile{
+        display: none;
+      }
+
+      .user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 500;
+
+        @include tablet{
+          display: none;
+        }
+
+        .dropdown{
+          position: relative;
+          font-size: 14px;
+          .dropmenu{
+            margin-top: 5px;
+            margin-left: -120px;
+            position: absolute;
+            padding: 0.75rem;
+            padding-top: 20px;
+            border:1px solid;
+            border-color:themed("bg"); 
+            border-radius: .25rem;
+            background-color: themed("bg");
+            -webkit-box-shadow: 0px 0px 15px 1px rgba(0, 0, 0, 0.09);
+            -moz-box-shadow: 0px 0px 15px 1px rgba(0, 0, 0, 0.09);
+            box-shadow: 0px 0px 15px 1px rgba(0, 0, 0, 0.09);
+          }
+          .pro{
+            padding: 5px;
+            padding-right: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            border-radius: 10px;
+            &:hover {
+              background-color: grey;
+            }
+            margin-bottom: 10px;
+            margin-top: 10px;
+            color:themed("textColor");
+          }
+          .sign{
+            padding: 5px;
+            padding-right: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            border-radius: 10px;
+            &:hover {
+              background-color: grey;
+            }
+            margin-bottom: 5px;
+          }
+        }
+
+        .menu{
+          font-size: 14px;
+          cursor: pointer;
+          margin-left: 25px;
+        }
+
+
+        img {
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          object-fit: cover;
+          cursor: pointer;
+        }
+
+        span {
+        }
+      }
+    }
+  }
+}

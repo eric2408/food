@@ -1,0 +1,45 @@
+@import "../../App.scss";
+
+.chatOnlineFriend {
+  @include themify($themes) {
+      display: flex;
+      align-items: center;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 10px;
+
+    
+    .chatOnlineImgContainer {
+      position: relative;
+      margin-right: 10px;
+    }
+    
+    .chatOnlineImg {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    
+    .chatOnlineBadge {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: limegreen;
+      position: absolute;
+      top: 2px;
+      right: 2px;
+    }
+
+    .chatOnlineName {
+      margin-left: 10px;
+      color: themed("textColor");
+    }
+    
+    @media screen and (max-width: 768px) {
+      .chatOnlineName {
+        display: none;
+      }
+    }
+}
+}  
