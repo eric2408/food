@@ -6,7 +6,7 @@ import { makeRequest } from "../../axiosRequest";
 import axios from "axios";
 import Comment from "../Comment/Comment";
 
-const Comments = ({ postId }) => {
+const Comments = ({ handleNotification, postId }) => {
   const [desc, setDesc] = useState("");
   const { currentUser } = useContext(AuthContext);
   const [users, setUsers] = useState([]);
@@ -65,7 +65,7 @@ const Comments = ({ postId }) => {
             value={desc}
             onChange={(e) => setDesc(e.target.value)}
           />
-          <button onClick={handleClick}>Submit</button>
+          <button onClick={(e) => {handleClick(e); handleNotification(2);}}>Submit</button>
         </div>
         {error
           ? "Something went wrong"

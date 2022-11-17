@@ -56,7 +56,7 @@ export default function Messenger() {
         createdAt: Date.now(),
       });
     });
-  }, []);
+  }, [messages]);
 
 
   useEffect(() => {
@@ -144,6 +144,19 @@ export default function Messenger() {
   }, [messages, currentChat]);
 
 
+  const handleNotification = (type) => {
+    const receiver = currentChat.members.find(
+      (member) => member !== `${currentUser.id}`
+    );
+
+    socket.current.emit("send", {
+      sender: currentUser.username,
+      receiverId: receiver,
+      type,
+    });
+  };
+
+
   if(loading || isLoading) return <>loading</>
 
 
@@ -179,7 +192,7 @@ export default function Messenger() {
                     onChange={(e) => setNewMessage(e.target.value)}
                     value={newMessage}
                   ></textarea>
-                  <button className="chatSubmitButton" onClick={handleSubmit}>
+                  <button className="chatSubmitButton" onClick={(e) => {handleSubmit(e); handleNotification(3);}}>
                     Send
                   </button>
                 </div>

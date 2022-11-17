@@ -23,7 +23,6 @@ const Login = () => {
     e.preventDefault();
     try {
       await login(inputs);
-      setTimeout(1000);
       navigate("/");
     } catch (err) {
       setErr(err.response.data);

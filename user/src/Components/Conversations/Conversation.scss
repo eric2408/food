@@ -25,12 +25,8 @@
   .conversationName {
     font-weight: 500;
     color: themed("textColor");
+
   }
   
-  @media screen and (max-width: 768px) {
-    .conversationName {
-      display: none;
-    }
-  }
 }
 }

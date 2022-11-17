@@ -1,3 +1,5 @@
+@import "../../App.scss";
+
 .register {
     height: 100vh;
     background-color: #f2d2c9;
@@ -13,6 +15,11 @@
       border-radius: 10px;
       min-height: 600px;
       overflow: hidden;
+
+      @include mobile {
+        width: 90%;
+        
+      }
   
       .left {
         flex: 1;
@@ -25,18 +32,36 @@
         flex-direction: column;
         gap: 30px;
         color: white;
+
+        @include mobile {
+          flex: 0.2;
+          padding: 70px 25px;
+          
+        }
   
         h1 {
           font-size: 70px;
           line-height: 100px;
+          @include mobile {
+            font-size: 15px;
+            margin-bottom: 15px;
+          }
         }
         
         h2 {
             font-size: 35px;
+            @include mobile {
+              font-size: 15px;
+              margin-bottom: 15px;
+              margin-top: 15px;
+            }
         }
   
         span {
           font-size: 14px;
+          @include mobile {
+            margin-top: 15px;
+          }
         }
         
         button {
@@ -47,6 +72,10 @@
           color: #D61C09;
           font-weight: bold;
           cursor: pointer;
+
+          @include mobile {
+            width: 100%;
+          }
         }
       }
   
@@ -57,21 +86,29 @@
         flex-direction: column;
         gap: 50px;
         justify-content: center;
+        @include mobile {
+          padding: 20px;
+          
+        }
   
         h1 {
         color: #555;
         font-size: 35px;
+        
         }
         
         form {
           display: flex;
           flex-direction: column;
           gap: 30px;
+
+
           
           input {
           border: none;
           border-bottom: 1px solid lightgray;
           padding: 20px 10px;
+
           }
           
           button {

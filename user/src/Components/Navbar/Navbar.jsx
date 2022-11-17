@@ -13,8 +13,9 @@ import { DarkModeContext } from "../../Context/DarkMode";
 import { AuthContext } from "../../Context/AuthContext";
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import axios from "axios";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Badge } from '@mui/material';
+import io from "socket.io-client";
 
 const Navbar = () => {
   const { toggle, darkMode } = useContext(DarkModeContext);
@@ -27,6 +28,19 @@ const Navbar = () => {
   const [query, setQuery] = useState("");
   const [info, setInfo] = useState([]);
   const [loadingTwo, setLoadingTwo] = useState(true);
+  const [notifications, setNotifications] = useState([]);
+  const socket = useRef();
+  const [openThree, setOpenThree] = useState(false);
+
+
+  useEffect(() => {
+    socket.current = io("http://localhost:5000");
+  }, []);
+
+  useEffect(() => {
+    currentUser && socket.current.emit("addUser", currentUser.id);
+  }, [socket, currentUser]);
+
 
 
   useEffect(() => {
@@ -57,6 +71,47 @@ const Navbar = () => {
     if (query.length > 1) fetchData();
   }, [query]);
 
+  
+  
+  useEffect(() => {
+    socket.current.on("getNotification", (data) => {
+      data.receiverId === currentUser.id && setNotifications((prev) => [...prev, data]);
+    });
+    socket.current.on("get", (data) => {
+      data.receiverId === currentUser.id && setNotifications((prev) => [...prev, data]);
+    });
+  }, [socket]);
+
+  // console.log(notifications)
+
+  const displayNotification = ({ sender, receiverId, type }) => {
+    let action;
+
+    if (type === 1) {
+      action = "liked";
+      return (
+        <span className="notification">{`${sender} ${action} your post.`}</span>
+      );
+    } else if (type === 2) {
+      action = "commented";
+      return (
+        <span className="notification">{`${sender} ${action} on your post.`}</span>
+      );
+    } else {
+      action = "sent";
+      return (
+        <span className="notification">{`${sender} ${action} you a message.`}</span>
+      );
+    }
+
+  };
+
+
+  const handleRead = () => {
+    setNotifications([]);
+    setOpenThree(false);
+  };
+
   if(loading) return <div>loading</div>
 
 
@@ -66,16 +121,16 @@ const Navbar = () => {
         <Link to="/" style={{ textDecoration: "none" }} >
           <img src={'http://localhost:3000/Pictures/Foodieland.png'} alt="" />
         </Link>
-        <HomeOutlinedIcon />
+        <div className="grid"><HomeOutlinedIcon /></div>
         {darkMode ? (
           <WbSunnyOutlinedIcon style={{ cursor: "pointer" }} onClick={toggle}/>
         ) : (
           <DarkModeOutlinedIcon style={{ cursor: "pointer" }} onClick={toggle}/>
         )}
-        <GridViewOutlinedIcon />
+        <div className="grid"><GridViewOutlinedIcon /></div>
         <div className="search">
-          <SearchOutlinedIcon />
-          <input className="search" type="text" placeholder="Search..." onChange={(e) => setQuery(e.target.value.toLowerCase())} onClick={() => setOpenTwo(!openTwo)}/>
+          <SearchOutlinedIcon style={{ cursor: "pointer" }} onClick={() => setOpenTwo(!openTwo)} />
+          <input className="search" type="text" placeholder="Search..." onChange={(e) => setQuery(e.target.value.toLowerCase())} />
         </div>
       </div>
       <div className="searchContent">
@@ -103,12 +158,20 @@ const Navbar = () => {
             <EmailOutlinedIcon />
           </Link>
         )}
- 
         </Badge>
-        <Badge badgeContent={2} color="error">
-          <NotificationsOutlinedIcon />
-        </Badge>
-
+        <div className="notification">
+          <Badge badgeContent={notifications.length} color="error">
+            <NotificationsOutlinedIcon style={{ cursor: "pointer" }} onClick={() => setOpenThree(!openThree)}/>
+          </Badge>
+        </div>
+        {openThree && (
+        <div className="notifications">
+          {notifications.map((n) => displayNotification(n))}
+          <button className="nButton" onClick={handleRead}>
+            Mark as read
+          </button>
+        </div>
+      )}
         <div className="user">
                             {currentUser ? open ? <div className="dropdown" onClick={() => setOpen(!open)}>
                               <img
@@ -119,7 +182,8 @@ const Navbar = () => {
                                 Welcome {currentUser?.username} 
                                   <div className="pro">
                                     <ManageAccountsIcon style={{'marginRight': 10}}/>
-                                    <Link style={{textDecoration: 'none', color: 'white'}} to={'/profile/'+currentUser?.id}>PROFILE</Link>
+                                    {darkMode ?<Link style={{textDecoration: 'none', color: 'white'}} to={'/profile/'+currentUser?.id}>PROFILE</Link> :
+                                    <Link style={{textDecoration: 'none', color: 'black'}} to={'/profile/'+currentUser?.id}>PROFILE</Link>} 
                                   </div>
                                   <div className="sign"onClick={() => logout()}>SIGN OUT</div>
                                 </div>

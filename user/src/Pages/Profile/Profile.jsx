@@ -7,7 +7,7 @@ import Posts from "../../Components/Posts/Posts"
 import Share from "../../Components/Share/Share"
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useContext } from "react";
 import { AuthContext } from "../../Context/AuthContext";
@@ -20,6 +20,7 @@ const Profile = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const { currentUser } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
       const fetchUser = async () => {
@@ -62,6 +63,19 @@ const Profile = () => {
   const handleFollow = () => {
     mutation.mutate(data.user.following.includes(`${userId}`));
   };
+
+  const createConvo = async () => {
+    const message = {
+      senderId: currentUser.id,
+      receiverId: userId
+    };
+    try{
+      const res = await axios.post(`http://localhost:5000/conversation`, message)
+      navigate('/convo/chat')
+    } catch(e){
+      console.log(e)
+    }
+  }
 
 
   if (loading) {
@@ -128,7 +142,7 @@ const Profile = () => {
             <div className="info">
               <div className="item">
                 <PlaceIcon />
-                <span>USA</span>
+                <span>{users.user.location? users.user.location: 'USA'}</span>
               </div>
               <div className="item">
                 <LanguageIcon />
@@ -148,11 +162,11 @@ const Profile = () => {
                 )}
           </div>
           <div className="right">
-            <EmailOutlinedIcon />
+          <div style={{ cursor: "pointer" }} onClick={createConvo}><EmailOutlinedIcon /></div>
             <MoreVertIcon />
           </div>
         </div>
-      <Share/>
+      {userId === currentUser.id ? <Share/>: ""}
       {<Posts userId={users.user.id} />}
       </div>
       {openEdit && <Update setOpenEdit={setOpenEdit} user={users.user}/>}

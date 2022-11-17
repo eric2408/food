@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import { useContext } from "react";
 import { AuthContext } from "../../Context/AuthContext";
 
-const Post = ({ post, id }) => {
+const Post = ({ socket, post, id }) => {
   const [commentOpen, setCommentOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [users, setUsers] = useState([]);
@@ -92,6 +92,16 @@ const Post = ({ post, id }) => {
     deleteMutation.mutate(post.id);
   };
 
+
+
+  const handleNotification = (type) => {
+    socket.current.emit("sendNotification", {
+      sender: currentUser.username,
+      receiverId: users.user.id,
+      type,
+    });
+  };
+
   if(loading) return <div>loading</div>
   if(commentLoading) return <div>loading</div>
   return (
@@ -129,7 +139,7 @@ const Post = ({ post, id }) => {
                   onClick={handleLike}
                 />
               ) : (
-                <FavoriteBorderOutlinedIcon onClick={handleLike} />
+                <FavoriteBorderOutlinedIcon onClick={() => {handleLike(); handleNotification(1);}} />
               )}
               {data?.length} Likes
           </div>
@@ -142,7 +152,7 @@ const Post = ({ post, id }) => {
             Share
           </div>
         </div>
-        {commentOpen && <Comments postId={post.id}/>}
+        {commentOpen && <Comments handleNotification={handleNotification} postId={post.id}/>}
       </div>
     </div>
   );

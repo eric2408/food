@@ -558,6 +558,16 @@ def send(msg):
     user = getU(msg["receiverId"])
     socketio.emit('getMessage', {'senderId': msg["senderId"], 'text': msg['text']})
 
+@socketio.on("sendNotification")
+def notification(notif):
+    print(notif)
+    socketio.emit("getNotification", {'sender': notif["sender"], 'receiverId': notif["receiverId"], 'type': notif['type']})    
+
+@socketio.on("send")
+def notification(notif):
+    print(notif)
+    socketio.emit("get", {'sender': notif["sender"], 'receiverId': notif["receiverId"], 'type': notif['type']})       
+
 
 @socketio.on("disconnect")
 def disconnected():

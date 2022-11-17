@@ -8,7 +8,7 @@ import { useContext } from "react";
 import { DarkModeContext } from "./Context/DarkMode";
 import Profile from "./Pages/Profile/Profile";
 import { AuthContext } from "./Context/AuthContext";
-
+import { useEffect, useState, useRef } from "react";
 import {
   createBrowserRouter,
   RouterProvider,
@@ -19,6 +19,8 @@ import {
 import './App.scss';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Messenger from "./Pages/Messenger/Messenger";
+import io from "socket.io-client";
+
 
 function App() {
 
@@ -28,11 +30,25 @@ function App() {
 
   const queryClient = new QueryClient();
 
+  const socket = useRef();
+
+
+  useEffect(() => {
+    socket.current = io("http://localhost:5000");
+  }, []);
+
+  useEffect(() => {
+    currentUser && socket.current.emit("addUser", currentUser.id);
+  }, [socket, currentUser]);
+
+
+  
+
   const Layout = () => {
     return (
       <QueryClientProvider client={queryClient}>
         <div className={`theme-${darkMode ? "dark" : "light"}`}>
-          <Navbar />
+          <Navbar socket={socket} />
           <div style={{ display: "flex" }}>
             <LeftBar />
             <div style={{ flex: 6 }}>
@@ -49,7 +65,7 @@ function App() {
     return (
       <QueryClientProvider client={queryClient}>
         <div className={`theme-${darkMode ? "dark" : "light"}`}>
-          <Navbar />
+          <Navbar socket={socket}/>
             <div>
               <Outlet />
             </div>
@@ -78,7 +94,7 @@ function App() {
       children: [
         {
           path: "/",
-          element: <Home />,
+          element: <Home socket={socket}/>,
         },
         {
           path: "/profile/:id",

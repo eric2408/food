@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { makeRequest } from "../../axiosRequest";
 import Post from "../../Components/Post/Post";
 
-const Home = () => {
+const Home = ({ socket }) => {
   const { currentUser } = useContext(AuthContext);
 
   const { isLoading, error, data } = useQuery(["postss"], () =>
@@ -28,7 +28,7 @@ const Home = () => {
           ? "Something went wrong!"
           : isLoading
           ? "loading"
-          : data.messages.map((post) => <Post post={post} key={post.id} id={post.user_id}/>)}
+          : data.messages.map((post) => <Post socket={socket} post={post} key={post.id} id={post.user_id}/>)}
       </div>
     </div>
   )
