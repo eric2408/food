@@ -1,6 +1,6 @@
 """Message model tests."""
 
-#    python -m unittest test_message_model.py
+#    FLASK_ENV=production python -m unittest test_message_model.py
 
 
 import os
@@ -23,7 +23,7 @@ class UserModelTestCase(TestCase):
         db.drop_all()
         db.create_all()
 
-        user = User.signup("user", "user@gmail.com", "password", None)
+        user = User.signup("user", "user@gmail.com", "password")
         self.uid = 6546
         user.id = self.uid
         db.session.commit()
@@ -61,7 +61,7 @@ class UserModelTestCase(TestCase):
             user_id=self.uid 
         )
 
-        u = User.signup("yetanothertest", "t@email.com", "password", None)
+        u = User.signup("yetanothertest", "t@email.com", "password")
         uid = 888
         u.id = uid
         db.session.add_all([m1, m2, u])

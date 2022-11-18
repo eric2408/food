@@ -16,6 +16,7 @@ import axios from "axios";
 import { useEffect, useRef } from "react";
 import { Badge } from '@mui/material';
 import io from "socket.io-client";
+import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 
 const Navbar = () => {
   const { toggle, darkMode } = useContext(DarkModeContext);
@@ -31,6 +32,20 @@ const Navbar = () => {
   const [notifications, setNotifications] = useState([]);
   const socket = useRef();
   const [openThree, setOpenThree] = useState(false);
+  const [width, setWidth] = useState(window.innerWidth);
+  const [openFour, setOpenFour] = useState(false);
+
+  function handleWindowSizeChange() {
+      setWidth(window.innerWidth);
+  }
+  useEffect(() => {
+      window.addEventListener('resize', handleWindowSizeChange);
+      return () => {
+          window.removeEventListener('resize', handleWindowSizeChange);
+      }
+  }, []);
+  
+  const isMobile = width <= 480;
 
 
   useEffect(() => {
@@ -78,11 +93,9 @@ const Navbar = () => {
       data.receiverId === currentUser.id && setNotifications((prev) => [...prev, data]);
     });
     socket.current.on("get", (data) => {
-      data.receiverId === currentUser.id && setNotifications((prev) => [...prev, data]);
+      data.receiverId === `${currentUser.id}` && setNotifications((prev) => [...prev, data]);
     });
   }, [socket]);
-
-  // console.log(notifications)
 
   const displayNotification = ({ sender, receiverId, type }) => {
     let action;
@@ -114,6 +127,34 @@ const Navbar = () => {
 
   if(loading) return <div>loading</div>
 
+  if(isMobile && openFour){
+    return (
+      <div className="navbar">
+        <div className="left">
+          <div className="search mobile">
+          <input className="search mobile" type="text" placeholder="Search..." onChange={(e) => setQuery(e.target.value.toLowerCase())} />
+            <SearchOutlinedIcon style={{ cursor: "pointer" }} onClick={() => setOpenTwo(!openTwo)} />
+          </div>
+        </div>
+        <div className="searchContent mobile">
+            <div className="contain mobile">{!loadingTwo && openTwo ? info.users.map((item) => (
+                    <div className="down" key={item.id}>
+                        <img
+                            src={item.image_url}
+                            alt=""
+                          />
+                        <Link style={{textDecoration: 'none'}} to={'/profile/'+item.id}>
+                          <div className="name">{item.username}</div>
+                        </Link>
+                    </div>
+                )):""}
+            </div>
+          </div>  
+          <div><KeyboardReturnIcon style={{ cursor: "pointer"}} onClick={() => setOpenFour(false)}/></div>
+      </div>
+    );
+  };
+  
 
   return (
     <div className="navbar">
@@ -129,8 +170,8 @@ const Navbar = () => {
         )}
         <div className="grid"><GridViewOutlinedIcon /></div>
         <div className="search">
-          <SearchOutlinedIcon style={{ cursor: "pointer" }} onClick={() => setOpenTwo(!openTwo)} />
-          <input className="search" type="text" placeholder="Search..." onChange={(e) => setQuery(e.target.value.toLowerCase())} />
+        <input className="search" type="text" placeholder="Search..." onChange={(e) => setQuery(e.target.value.toLowerCase())} />
+          <SearchOutlinedIcon style={{ cursor: "pointer" }} onClick={() => {setOpenTwo(!openTwo); setOpenFour(true);}} />
         </div>
       </div>
       <div className="searchContent">
@@ -150,11 +191,11 @@ const Navbar = () => {
       <div className="right">
         <Badge badgeContent={1} color="error">
         {darkMode ? (
-                 <Link style={{textDecoration: 'none', color:'white'}} to="/convo/chat">
+                 <Link style={{textDecoration: 'none', color:'white', cursor: "pointer"}} to="/convo/chat">
                    <EmailOutlinedIcon />
                  </Link>
         ) : (
-          <Link style={{textDecoration: 'none', color:'black'}} to="/convo/chat">
+          <Link style={{textDecoration: 'none', color:'black', cursor: "pointer"}} to="/convo/chat">
             <EmailOutlinedIcon />
           </Link>
         )}

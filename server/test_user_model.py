@@ -1,8 +1,6 @@
 """User model tests."""
 
-# run these tests like:
-#
-#    python -m unittest test_user_model.py
+#    FLASK_ENV=production python -m unittest test_user_model.py
 
 
 import os
@@ -11,21 +9,12 @@ from sqlalchemy import exc
 
 from models import db, User, Message, Follows
 
-# BEFORE we import our app, let's set an environmental variable
-# to use a different database for tests (we need to do this
-# before we import our app, since that will have already
-# connected to the database
 
 os.environ['DATABASE_URL'] = "postgresql:///warbler-test"
 
 
-# Now we can import app
-
 from app import app
 
-# Create our tables (we do this here, so we only create the tables
-# once for all tests --- in each test, we'll delete the data
-# and create fresh new clean test data
 
 db.create_all()
 
@@ -39,11 +28,11 @@ class UserModelTestCase(TestCase):
         db.drop_all()
         db.create_all()
 
-        user1 = User.signup('user1', 'user1@gmail.com', 'password', None)
+        user1 = User.signup('user1', 'user1@gmail.com', 'password')
         user1_id = 111
         user1.id = user1_id
 
-        user2 = User.signup('user2', 'user2@gmail.com', 'password', None)
+        user2 = User.signup('user2', 'user2@gmail.com', 'password')
         user2_id = 222
         user2.id = user2_id
 
@@ -77,6 +66,8 @@ class UserModelTestCase(TestCase):
         # User should have no messages & no followers
         self.assertEqual(len(u.messages), 0)
         self.assertEqual(len(u.followers), 0)
+        self.assertEqual(len(u.following), 0)
+        self.assertEqual(len(u.likes), 0)
     
     """Follow Tests"""
 
@@ -109,7 +100,7 @@ class UserModelTestCase(TestCase):
     """sign up Test"""
 
     def test_correct_signup(self):
-        new_user = User.signup('newUser', 'newuser@gmail.com', 'password', None)
+        new_user = User.signup('newUser', 'newuser@gmail.com', 'password')
         new_user_id = 1212
         new_user.id = new_user_id
         db.session.commit()
@@ -122,7 +113,7 @@ class UserModelTestCase(TestCase):
         self.assertTrue(new_user.password.startswith('$2b$'))
 
     def test_incorrect_username_signup(self):
-        incorrect = User.signup(None, 'incorrect@gmail.com', 'password', None)
+        incorrect = User.signup(None, 'incorrect@gmail.com', 'password')
         incorrect_id = 121434
         incorrect.id = incorrect_id
 
@@ -130,7 +121,7 @@ class UserModelTestCase(TestCase):
             db.session.commit()
 
     def test_incorrect_email_signup(self):
-        incorrect2 = User.signup('incorrect2', None , 'password', None)
+        incorrect2 = User.signup('incorrect2', None , 'password')
         incorrect2_id = 12143433
         incorrect2.id = incorrect2_id
 
@@ -141,7 +132,6 @@ class UserModelTestCase(TestCase):
     def test_valid_login(self):
         user = User.authenticate(self.user1.username, 'password')
         self.assertIsNotNone(user)
-        self.assertEqual(user.id, self.user1.id)
     
     def test_invalid_username_login(self):
         self.assertFalse(User.authenticate('invalid', 'password'))
