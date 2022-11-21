@@ -6,6 +6,7 @@ from flask import Flask, request, json, jsonify
 from flask_socketio import SocketIO, emit
 # from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
+from flask.helpers import send_from_directory
 
 # from forms import UserAddForm, LoginForm, MessageForm, ProfileForm
 from models import db, connect_db, User, Message, Comments, Letter, Conversation
@@ -17,7 +18,7 @@ from datetime import datetime, timedelta, timezone
 
 CURR_USER_KEY = "curr_user"
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='user/build', static_url_path='')
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*", logger=True, engineio_logger=True)
 # Get DB_URI from environ variable (useful for production/testing) or,
@@ -38,6 +39,11 @@ jwt = JWTManager(app)
 connect_db(app)
 
 
+
+
+@app.route('/')
+def index():
+    return send_from_directory(app.static_folder, 'index.html')
 
 
 ##############################################################################
@@ -577,4 +583,5 @@ def disconnected():
     socketio.emit("getUsers", users)
 
 if __name__ == '__main__':
-    socketio.run(app, host="localhost", debug=True, port=5000)        
+    socketio.run(app)
+    app.run()        
