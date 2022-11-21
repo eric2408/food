@@ -100,4 +100,4 @@ Install with npm
 
 ## Demo
 
-https://foodieland1234.herokuapp.com/login
+https://foodieland1234.herokuapp.com/
