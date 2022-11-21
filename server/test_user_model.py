@@ -10,7 +10,7 @@ from sqlalchemy import exc
 from models import db, User, Message, Follows
 
 
-os.environ['DATABASE_URL'] = "postgresql:///warbler-test"
+os.environ['DATABASE_URL'] = "postgresql:///server-test"
 
 
 from app import app

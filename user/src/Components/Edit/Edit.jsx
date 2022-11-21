@@ -110,11 +110,11 @@ const Edit = ({ setOpenEdit, user }) => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["user"]);
+        window.location.reload();
       },
     }
   );
 
-  console.log({...texts})
 
   const handleClick = async (e) => {
     e.preventDefault();

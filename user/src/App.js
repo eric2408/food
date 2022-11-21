@@ -20,6 +20,8 @@ import './App.scss';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Messenger from "./Pages/Messenger/Messenger";
 import io from "socket.io-client";
+import Followers from "./Pages/Followers/Followers";
+import Following from "./Pages/Following/Following";
 
 
 function App() {
@@ -31,6 +33,7 @@ function App() {
   const queryClient = new QueryClient();
 
   const socket = useRef();
+
 
 
   useEffect(() => {
@@ -48,7 +51,7 @@ function App() {
     return (
       <QueryClientProvider client={queryClient}>
         <div className={`theme-${darkMode ? "dark" : "light"}`}>
-          <Navbar socket={socket} />
+          <Navbar/>
           <div style={{ display: "flex" }}>
             <LeftBar />
             <div style={{ flex: 6 }}>
@@ -65,7 +68,7 @@ function App() {
     return (
       <QueryClientProvider client={queryClient}>
         <div className={`theme-${darkMode ? "dark" : "light"}`}>
-          <Navbar socket={socket}/>
+          <Navbar/>
             <div>
               <Outlet />
             </div>
@@ -99,6 +102,14 @@ function App() {
         {
           path: "/profile/:id",
           element: <Profile />,
+        },
+        {
+          path: "/profile/:id/followers",
+          element: <Followers />,
+        },
+        {
+          path: "/profile/:id/following",
+          element: <Following />,
         },
       ],
     },

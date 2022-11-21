@@ -79,6 +79,11 @@
           flex-direction: column;
           align-items: center;
           gap: 10px;
+          margin-top: 70px;
+
+          @include mobile{
+            margin-top: 0px;
+          }
 
           span {
             font-size: 30px;

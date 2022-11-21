@@ -11,7 +11,7 @@ from models import db, connect_db, Message, User
 import json
 
 
-os.environ['DATABASE_URL'] = "postgresql:///warbler-test"
+os.environ['DATABASE_URL'] = "postgresql:///server-test"
 
 
 

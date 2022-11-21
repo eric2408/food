@@ -24,6 +24,7 @@
       margin-right: 10px;
       flex: 5.5;
       border-right: 1px solid themed("border");
+      color:themed("textColor");
       @include mobile {
         border: none;
       }
@@ -42,7 +43,7 @@
       padding-right: 10px;
 
       @include mobile {
-        height: 50vh;
+        height: 70vh;
       }
 
       &::-webkit-scrollbar {
@@ -72,6 +73,7 @@
 
       @include mobile {
         flex-direction: column;
+        margin-bottom: 30px;
       }
     }
     

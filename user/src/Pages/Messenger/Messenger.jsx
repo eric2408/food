@@ -5,8 +5,8 @@ import OnlineChat from "../../Components/OnlineChat/OnlineChat";
 import { useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "../../Context/AuthContext";
 import axios from "axios";
-// import { ResultType } from "@remix-run/router/dist/utils";
 import io from "socket.io-client";
+import MobileChat from "../../Components/mobileChat/mobileChat";
 
 export default function Messenger() {
   const [conversations, setConversations] = useState([]);
@@ -24,10 +24,19 @@ export default function Messenger() {
   const [userss, setUserss] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(null);
+  const [width, setWidth] = useState(window.innerWidth);
 
-      // socket.current.on("connect", (data) => {
-      //   console.log(data);
-      // });
+    function handleWindowSizeChange() {
+        setWidth(window.innerWidth);
+    }
+    useEffect(() => {
+        window.addEventListener('resize', handleWindowSizeChange);
+        return () => {
+            window.removeEventListener('resize', handleWindowSizeChange);
+        }
+    }, []);
+
+    const isMobile = width <= 480;
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -102,7 +111,6 @@ export default function Messenger() {
                 setMessages(response.data.letters);
                 setLoading(false);
             });
-
       } catch (err) {
         console.log(err);
       }
@@ -159,7 +167,38 @@ export default function Messenger() {
 
   if(loading || isLoading) return <>loading</>
 
-
+  if(isMobile){
+    return (
+      <>
+        <div className="messenger">
+          {currentChat && count > 1? <></>: <div className="chatMenu">
+            <div className="chatMenuWrapper">
+              <h2 className="chatHead">Chats</h2>
+              {conversations.map((c) => (
+                <div onClick={() => {setCurrentChat(c); setCount(count +1);}}>
+                  <Conversations conversation={c} currentUser={currentUser} />
+                </div>
+              ))}
+            </div>
+          </div>}
+          {currentChat && count > 1?<MobileChat currentchat={currentChat} count={count} scrollref={scrollRef} messages={messages} currentuser={currentUser} setnewmessage={setNewMessage} newmessage={newMessage} handlesubmit={handleSubmit} handlenotification={handleNotification}/>:
+          <></>}
+          {currentChat && count > 1? <></>: <div className="chatOnline">
+            <div className="chatOnlineWrapper">
+            <h2 className="chatHeadTwo">Active Followers</h2>
+            {onlineUsers.map((u) => (
+              <OnlineChat
+                onlineUser={u}
+                currentId={currentUser.id}
+                setCurrentChat={setCurrentChat}
+              />
+              ))}  
+            </div>
+          </div>}
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

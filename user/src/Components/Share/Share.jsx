@@ -64,6 +64,7 @@ const Share = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["posts"]);
+        window.location.reload();
       },
     }
   );

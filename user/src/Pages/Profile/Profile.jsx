@@ -1,7 +1,6 @@
 import "./Profile.scss";
 import PlaceIcon from "@mui/icons-material/Place";
 import LanguageIcon from "@mui/icons-material/Language";
-import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Posts from "../../Components/Posts/Posts"
 import Share from "../../Components/Share/Share"
@@ -13,20 +12,40 @@ import { useContext } from "react";
 import { AuthContext } from "../../Context/AuthContext";
 import { makeRequest } from "../../axiosRequest";
 import Update from "../../Components/Edit/Edit";
+import SendIcon from '@mui/icons-material/Send';
+import { Link } from "react-router-dom";
 
 const Profile = () => {
   const [openEdit, setOpenEdit] = useState(false);
   const userId = parseInt(useLocation().pathname.split("/")[2]);
   const [users, setUsers] = useState([]);
+  const [followers, setFollowers] = useState(null);
+  const [following, setFollowing] = useState(null);
   const [loading, setLoading] = useState(true);
   const { currentUser } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [width, setWidth] = useState(window.innerWidth);
+
+
+  function handleWindowSizeChange() {
+    setWidth(window.innerWidth);
+  }
+  useEffect(() => {
+      window.addEventListener('resize', handleWindowSizeChange);
+      return () => {
+          window.removeEventListener('resize', handleWindowSizeChange);
+      }
+  }, []);
+
+  const isMobile = width <= 480;
 
   useEffect(() => {
       const fetchUser = async () => {
         try{
           const res = await axios.get(`http://localhost:5000/users/`+ userId).then((response)=> {
             setUsers(response.data);
+            setFollowers(response.data.user.followers);
+            setFollowing(response.data.user.following);
             setLoading(false);
         });
         } catch(e){
@@ -35,6 +54,7 @@ const Profile = () => {
       };
         fetchUser();
   }, [userId]);
+
 
   const { isLoading, error, data } = useQuery(
     ["relationship"],
@@ -111,7 +131,7 @@ const Profile = () => {
           <button>follow</button>
         </div>
         <div className="right">
-          <EmailOutlinedIcon />
+          <SendIcon />
           <MoreVertIcon />
         </div>
       </div>
@@ -160,11 +180,24 @@ const Profile = () => {
                       : "Follow"}
                   </button>
                 )}
+                          <Link
+                to={`/profile/${userId}/followers`}
+                style={{ color: "inherit",cursor: "pointer" }}
+              >
+                <div>{followers.length} followers </div>
+          </Link>
+          <Link
+                to={`/profile/${userId}/following`}
+                style={{ color: "inherit",cursor: "pointer" }}
+              >
+                          <div>{following.length} following </div>
+          </Link>
           </div>
           <div className="right">
-          <div style={{ cursor: "pointer" }} onClick={createConvo}><EmailOutlinedIcon /></div>
-            <MoreVertIcon />
+          {userId === currentUser.id ? "" : <div style={{ cursor: "pointer" }} onClick={createConvo}><SendIcon /></div>}
+            {!isMobile && <MoreVertIcon />}
           </div>
+
         </div>
       {userId === currentUser.id ? <Share/>: ""}
       {<Posts userId={users.user.id} />}
