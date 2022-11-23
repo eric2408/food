@@ -8,7 +8,7 @@ Social media platform built using Backend Rest Api written in SQL Alchemy and Fl
 
 **Server:** Flask, SQL Alchemy, JSON Web Token, Bcrypt
 
-**User(Front End inside Server Folder):** React, Context, Firebase
+**User(Front End inside Server Folder):** ReactJS, Context, Firebase
 
 **Api:** Socketio
 
