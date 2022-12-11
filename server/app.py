@@ -39,6 +39,9 @@ jwt = JWTManager(app)
 connect_db(app)
 
 
+@app.errorhandler(404)
+def not_found(e):
+    return app.send_static_file('index.html')
 
 
 @app.route('/')
@@ -244,18 +247,19 @@ def add_like(message_id):
     """Like a message for the currently-logged-in user."""
 
     userId = request.json["userId"]
+
     user = User.query.get_or_404(userId)
 
     liked_message = Message.query.get_or_404(message_id)
 
-
     msg_likes = liked_message.likes
 
-    msg_likes.append(user)
+
+    msg_likes.append(userId)
 
     db.session.commit()
 
-    return jsonify({"status": "liked the post"}) 
+    return jsonify({"status": f"{msg_likes}"}) 
 
 
 @app.route('/messages/<int:message_id>/deleteLike', methods=['POST'])
@@ -269,7 +273,7 @@ def delete_like(message_id):
 
     msg_likes = liked_message.likes
 
-    msg_likes.remove(user)
+    msg_likes.remove(userId)
 
     db.session.commit()
 

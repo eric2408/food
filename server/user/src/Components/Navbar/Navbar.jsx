@@ -162,13 +162,12 @@ const Navbar = () => {
         <Link to="/" style={{ textDecoration: "none" }} >
           <img src={'https://foodieland1234.herokuapp.com/Pictures/Foodieland.png'} alt="" />
         </Link>
-        <div className="grid"><HomeOutlinedIcon /></div>
         {darkMode ? (
           <WbSunnyOutlinedIcon style={{ cursor: "pointer" }} onClick={toggle}/>
         ) : (
           <DarkModeOutlinedIcon style={{ cursor: "pointer" }} onClick={toggle}/>
         )}
-        <div className="grid"><GridViewOutlinedIcon /></div>
+        <div className="grid"></div>
         <div className="search">
         <input className="search" type="text" placeholder="Search..." onChange={(e) => setQuery(e.target.value.toLowerCase())} />
           <SearchOutlinedIcon style={{ cursor: "pointer" }} onClick={() => {setOpenTwo(!openTwo); setOpenFour(true);}} />
@@ -189,7 +188,6 @@ const Navbar = () => {
           </div>
         </div>  
       <div className="right">
-        <Badge badgeContent={1} color="error">
         {darkMode ? (
                  <Link style={{textDecoration: 'none', color:'white', cursor: "pointer"}} to="/convo/chat">
                    <EmailOutlinedIcon />
@@ -199,7 +197,6 @@ const Navbar = () => {
             <EmailOutlinedIcon />
           </Link>
         )}
-        </Badge>
         <div className="notification">
           <Badge badgeContent={notifications.length} color="error">
             <NotificationsOutlinedIcon style={{ cursor: "pointer" }} onClick={() => setOpenThree(!openThree)}/>

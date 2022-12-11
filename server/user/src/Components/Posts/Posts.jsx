@@ -2,22 +2,32 @@ import Post from "../Post/Post";
 import "./Posts.scss";
 import { useQuery } from "@tanstack/react-query";
 import { makeRequest } from "../../axiosRequest";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const Posts = ({userId}) => {
-    const { isLoading, error, data } = useQuery(["posts"], () =>
-    makeRequest.get("/users/"+userId).then((res) => {
-      return res.data;
-    })
-    );
+    const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-
+    useEffect(() => {
+      const fetchUser = async () => {
+        try{
+          const res = await axios.get(`https://foodieland1234.herokuapp.com/users/`+ userId).then((response)=> {
+            setUsers(response.data);
+            setLoading(false);
+        });
+        } catch(e){
+          console.log(e)
+        }
+      };
+        fetchUser();
+  }, [userId]);
+   
 
   return <div className="posts">
-    {error
-        ? "Something went wrong!"
-        : isLoading
+    {loading
         ? "loading"
-        : data.messages.map((post) => <Post post={post} key={post.id} id={userId}/>)}
+        : users.messages.map((post) => <Post post={post} key={post.id} id={userId}/>)}
   </div>;
 };
 

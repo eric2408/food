@@ -19,7 +19,7 @@ export default function Messenger() {
   const socket = useRef();
   const { currentUser } = useContext(AuthContext);
   const scrollRef = useRef();
-  const [count, setCount] = useState(false);
+  const [count, setCount] = useState(1);
   const [loading, setLoading] = useState(false);
   const [userss, setUserss] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -104,7 +104,7 @@ export default function Messenger() {
 
   useEffect(() => {
     const getMessages = async () => {
-      if(count > 0){
+      if(count > 1){
         try {
             setLoading(true)
             const res = await axios.get(`https://foodieland1234.herokuapp.com/letters/${currentChat?.id}`).then((response)=> {
@@ -118,6 +118,7 @@ export default function Messenger() {
       }    
     getMessages();
   }, [currentChat]);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();

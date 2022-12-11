@@ -57,13 +57,12 @@ const Post = ({ socket, post, id }) => {
 })
 );
 
-
   const queryClient = useQueryClient();
 
   const mutation = useMutation(
     (liked) => {
-      if (liked) return makeRequest.post(`/messages/${post.id}/deleteLike`, { "userId": `${id}` });
-      return makeRequest.post(`/messages/${post.id}/like`, { "userId": `${id}` });
+      if (liked) return makeRequest.post(`/messages/${post.id}/deleteLike`, { "userId": `${currentUser.id}` });
+      return makeRequest.post(`/messages/${post.id}/like`, { "userId": `${currentUser.id}` });
     },
     {
       onSuccess: () => {
@@ -84,9 +83,8 @@ const Post = ({ socket, post, id }) => {
     }
   );
 
-
   const handleLike = () => {
-    mutation.mutate(data.includes(id));
+    mutation.mutate(data.includes(currentUser.id));
   };
 
   const handleDelete = () => {
@@ -134,7 +132,7 @@ const Post = ({ socket, post, id }) => {
           <div className="item">
             {isLoading ? (
                 "loading"
-              ) : data.includes(id) ? (
+              ) : data.includes(currentUser.id) ? (
                 <FavoriteOutlinedIcon
                   style={{ color: "red" }}
                   onClick={handleLike}

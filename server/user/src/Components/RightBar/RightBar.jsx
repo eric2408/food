@@ -124,9 +124,6 @@ if (isLoading || isLoadingTwo || isLoadingThree) {
                 <span>{usersTwo.user.username}</span>
               </Link>
             </div>
-            <div className="buttons">
-              <button>follow</button>
-            </div>
           </div>
           <div className="user">
             <div className="userInfo">
@@ -140,9 +137,6 @@ if (isLoading || isLoadingTwo || isLoadingThree) {
               >
                 <span>{usersThree.user.username}</span>
               </Link>
-            </div>
-            <div className="buttons">
-              <button>follow</button>
             </div>
           </div>
         </div>

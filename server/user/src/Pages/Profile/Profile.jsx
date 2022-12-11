@@ -27,6 +27,7 @@ const Profile = () => {
   const [width, setWidth] = useState(window.innerWidth);
 
 
+
   function handleWindowSizeChange() {
     setWidth(window.innerWidth);
   }
@@ -96,7 +97,6 @@ const Profile = () => {
       console.log(e)
     }
   }
-
 
   if (loading) {
     return     <div className="profile">
@@ -200,7 +200,7 @@ const Profile = () => {
 
         </div>
       {userId === currentUser.id ? <Share/>: ""}
-      {<Posts userId={users.user.id} />}
+      {<Posts userId={userId} />}
       </div>
       {openEdit && <Update setOpenEdit={setOpenEdit} user={users.user}/>}
     </div>

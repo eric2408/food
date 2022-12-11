@@ -36,6 +36,10 @@
         @include mobile{
           display: none;
         }
+        @include tablet{
+          margin-left: 20px;
+        }
+        margin-left: 200px;
       }
 
       .search {
@@ -45,6 +49,8 @@
         border: 1px solid themed("border");
         border-radius: 5px;
         padding: 5px;
+        
+        
 
 
         input {
@@ -109,12 +115,14 @@
 
 
       .contain{
+
         position: absolute;
         font-size: 14px;
         
         .down{
           margin-top: 2px;
-          margin-left: -750px;
+          margin-right:100px;
+          margin-left: -900px;
           padding: 0.75rem;
           padding-top: 20px;
           border:1px solid;
@@ -129,6 +137,16 @@
           gap: 20px;
           @include tablet{
             margin-left: -300px;
+          }
+
+          @media only screen and (max-width: 1700px) and (min-width: 1600px){
+            margin-left: -770px;
+            margin-right:50px;
+          }
+
+          @media only screen and (max-width: 1600px) and (min-width: 1000px){
+            margin-left: -750px;
+            margin-right:0px;
           }
           
 
