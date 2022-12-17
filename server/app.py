@@ -247,19 +247,18 @@ def add_like(message_id):
     """Like a message for the currently-logged-in user."""
 
     userId = request.json["userId"]
-
     user = User.query.get_or_404(userId)
 
     liked_message = Message.query.get_or_404(message_id)
 
+
     msg_likes = liked_message.likes
 
-
-    msg_likes.append(userId)
+    msg_likes.append(user)
 
     db.session.commit()
 
-    return jsonify({"status": f"{msg_likes}"}) 
+    return jsonify({"status": "liked the post"}) 
 
 
 @app.route('/messages/<int:message_id>/deleteLike', methods=['POST'])
@@ -273,7 +272,7 @@ def delete_like(message_id):
 
     msg_likes = liked_message.likes
 
-    msg_likes.remove(userId)
+    msg_likes.remove(user)
 
     db.session.commit()
 

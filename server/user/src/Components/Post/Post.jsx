@@ -86,6 +86,8 @@ const Post = ({ socket, post, id }) => {
   const handleLike = () => {
     mutation.mutate(data.includes(currentUser.id));
   };
+  
+
 
   const handleDelete = () => {
     deleteMutation.mutate(post.id);
