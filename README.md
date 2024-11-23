@@ -64,6 +64,8 @@ Install with npm
 
   cd user 
 
+  **MacOS:** brew install node
+
   npm Install
 
   npm start
@@ -74,7 +76,11 @@ Install with npm
 
   source venv/bin/activate
 
+  **MacOS:** brew install postgresql
+
   pip install -r requirements.txt
+
+  **MacOS:** brew services start postgresql
 
   createdb server
 
