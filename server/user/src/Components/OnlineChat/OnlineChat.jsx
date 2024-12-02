@@ -1,32 +1,29 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import "./OnlineChat.scss";
+import config from "../../config";
 
-function OnlineChat({ onlineUser, currentId, setCurrentChat }) {
+function OnlineChat({ onlineUser, currentId, setCurrentChat }) 
+{
   const [friends, setFriends] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   let allConvo = [];
 
-
-  useEffect(() => {
-    const getFriends = async () => {
-      const res = await axios.get(`https://foodieland1234.herokuapp.com/users/${onlineUser}`).then(response => {
-          setFriends(response.data.user)
-        });
-
+  useEffect(() => 
+  {
+    const getFriends = async () => 
+    {
+      const res = await axios.get(`${config.apiBaseUrl}users/${onlineUser}`).then(response => 
+      {
+        setFriends(response.data.user)
+      });
     };
 
     getFriends();
     setIsLoading(false);
   }, [currentId, onlineUser]);
 
-
-
-  
-
-  const handleClick = async (user) => {
-
-  };
+  const handleClick = async (user) => {};
 
   if(isLoading) return <>loading</>
 

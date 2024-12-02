@@ -6,6 +6,7 @@ import axios from "axios";
 import "./Following.scss";
 import { useLocation, useNavigate } from "react-router-dom";
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
+import config from "../../config";
 
 function Followering() {
     const [users, setUsers] = useState(null);
@@ -17,7 +18,7 @@ function Followering() {
     useEffect(() => {
         const fetchUser = async () => {
           try{
-            const res = await axios.get(`https://foodieland1234.herokuapp.com/users/${userId}/followers`).then((response)=> {
+            const res = await axios.get(`${config.apiBaseUrl}users/${userId}/followers`).then((response)=> {
               setUsers(response.data);
               setLoading(false);
           });

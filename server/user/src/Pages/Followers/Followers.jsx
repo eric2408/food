@@ -1,40 +1,47 @@
 import React from 'react'
-import { AuthContext } from "../../Context/AuthContext";
-import { useContext, useEffect, useState } from "react";
-import Online from "../../Components/Online/Online";
 import axios from "axios";
-import "./Followers.scss";
 import { useLocation, useNavigate } from "react-router-dom";
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
+import { useContext, useEffect, useState } from "react";
+import { AuthContext } from "../../Context/AuthContext";
+import Online from "../../Components/Online/Online";
+import config from "../../config";
+import "./Followers.scss";
 
-function Followers() {
-    const [users, setUsers] = useState(null);
-    const [isLoading, setLoading] = useState(true);
-    const { currentUser } = useContext(AuthContext);
-    const userId = parseInt(useLocation().pathname.split("/")[2]);
-    const navigate = useNavigate();
+function Followers() 
+{
+  const [users, setUsers] = useState(null);
+  const [isLoading, setLoading] = useState(true);
+  const { currentUser } = useContext(AuthContext);
+  const userId = parseInt(useLocation().pathname.split("/")[2]);
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        const fetchUser = async () => {
-          try{
-            const res = await axios.get(`https://foodieland1234.herokuapp.com/users/${userId}/followers`).then((response)=> {
-              setUsers(response.data);
-              setLoading(false);
-          });
-          } catch(e){
-            console.log(e)
-          }
-        };
-          fetchUser(); 
-    }, []);
+  useEffect(() => 
+  {
+    const fetchUser = async () => 
+    {
+      try {
+        const res = await axios.get(`${config.apiBaseUrl}users/${userId}/followers`).then((response)=> 
+        {
+          setUsers(response.data);
+          setLoading(false);
+        });
+      } catch(e){
+        console.log(e)
+      }
+    };
+    fetchUser(); 
+  }, []);
 
-    const handleClick = () => {
-        navigate(`/profile/${userId}`)
-    }
+  const handleClick = () => 
+  {
+    navigate(`/profile/${userId}`)
+  }
 
-    if (isLoading) {
-        return <>loading...</>
-    }
+  if (isLoading) 
+  {
+    return <>loading...</>
+  }
 
   return (
     <div className='containerrr'>
@@ -46,7 +53,6 @@ function Followers() {
             ))}
         </div>
     </div>
-
   )
 }
 

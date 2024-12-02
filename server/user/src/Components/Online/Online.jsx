@@ -2,25 +2,29 @@ import React from 'react'
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import config from "../../config";
 
-function Online({user}){
-
+function Online({user})
+{
   const [users, setUsers] = useState(null);
   const [isLoading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try{
-        const res = await axios.get(`https://foodieland1234.herokuapp.com/users/`+ user).then((response)=> {
+  useEffect(() => 
+  {
+    const fetchUser = async () => 
+    {
+      try {
+        const res = await axios.get(`${config.apiBaseUrl}users/`+ user).then((response)=>
+        {
           setUsers(response.data);
           setLoading(false);
-      });
+        });
       } catch(e){
         console.log(e)
       }
     };
-      fetchUser();
-}, [user.id]);
+    fetchUser();
+  }, [user.id]);
 
   if(isLoading) return <div>Loading</div>
 
@@ -33,10 +37,10 @@ function Online({user}){
       />
       <div className="online" />
       <Link
-                to={`/profile/${users.user.id}`}
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <span>{users.user.username}</span>
+        to={`/profile/${users.user.id}`}
+        style={{ textDecoration: "none", color: "inherit" }}
+      >
+      <span>{users.user.username}</span>
       </Link>
     </div>
   </div>

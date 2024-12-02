@@ -2,6 +2,7 @@ import React from 'react'
 import "./Comment.scss";
 import axios from "axios";
 import { useState, useEffect } from "react";
+import config from "../../config";
 
 function Comment({comment}) {
     const [users, setUsers] = useState([]);
@@ -10,7 +11,7 @@ function Comment({comment}) {
     useEffect(() => {
         const fetchUser = async () => {
           try{
-            const res = await axios.get(`https://foodieland1234.herokuapp.com/users/`+ comment.user_id).then((response)=> {
+            const res = await axios.get(`${config.apiBaseUrl}users/`+ comment.user_id).then((response)=> {
               setUsers(response.data);
               setLoading(false);
           });
@@ -27,14 +28,12 @@ function Comment({comment}) {
 
   return (
     <div className="comment">
-        <img src={users.user.image_url} alt="" />
-        <div className="info">
+      <img src={users.user.image_url} alt="" />
+      <div className="info">
         <span>{users.user.username}</span>
         <p>{comment.text}</p>
-        </div>
-        <span className="date">
-        {comment.timestamp.substring(0,16)}
-        </span>
+      </div>
+      <span className="date">{comment.timestamp.substring(0,16)}</span>
     </div>
   )
 }

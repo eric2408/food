@@ -1,12 +1,12 @@
+import os
 from cProfile import Profile
 from crypt import methods
-import os
 
 from flask import Flask, request, json, jsonify
 from flask_socketio import SocketIO, emit
 # from flask_debugtoolbar import DebugToolbarExtension
-from sqlalchemy.exc import IntegrityError
 from flask.helpers import send_from_directory
+from sqlalchemy.exc import IntegrityError
 
 # from forms import UserAddForm, LoginForm, MessageForm, ProfileForm
 from models import db, connect_db, User, Message, Comments, Letter, Conversation
@@ -19,7 +19,7 @@ from datetime import datetime, timedelta, timezone
 CURR_USER_KEY = "curr_user"
 
 app = Flask(__name__, static_folder='user/build', static_url_path='')
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 socketio = SocketIO(app, cors_allowed_origins="*", logger=True, engineio_logger=True)
 # Get DB_URI from environ variable (useful for production/testing) or,
 # if not set there, use development local db
@@ -35,23 +35,18 @@ app.config["JWT_SECRET_KEY"] = "thisissecret"
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 jwt = JWTManager(app)
 
-
 connect_db(app)
-
 
 @app.errorhandler(404)
 def not_found(e):
     return app.send_static_file('index.html')
 
-
 @app.route('/')
 def index():
     return send_from_directory(app.static_folder, 'index.html')
 
-
 ##############################################################################
 # User register/login
-
 
 @app.route("/register", methods=["POST"])
 def register_user():
@@ -61,8 +56,10 @@ def register_user():
 
     user_exists = User.query.filter_by(email=email).first() is not None
 
+    print(user_exists)
+
     if user_exists:
-        return jsonify({"error": "User already exists"}), 409
+        return jsonify({"error": {"code": 401, "message": "User already exists"}}), 401
 
     user = User.signup(
                 username=username,
@@ -76,8 +73,7 @@ def register_user():
         "email": user.email
     })
 
-
-@app.route('/login', methods=["GET", "POST"])
+@app.route('/login', methods=["POST"])
 def login():
     """Handle user login."""
 
@@ -88,7 +84,7 @@ def login():
                 email=email,
                 password=password
             )
-
+    
     if user is None:
         return jsonify({"error": "Unauthorized"}), 401        
 
@@ -100,8 +96,6 @@ def login():
         "id": user.id,
         "access_token":access_token
     })
-
-
 
 ##############################################################################
 # General user routes:
@@ -123,8 +117,6 @@ def list_users():
     serialized = [u.serialize() for u in users]
     return jsonify(users=serialized)
 
-
-
 @app.route('/users/<int:user_id>')
 def users_show(user_id):
     """Show user profile."""
@@ -145,8 +137,6 @@ def users_show(user_id):
 
     return jsonify(user=serialized, messages=serializedTwo)
 
-
-
 @app.route('/users/<int:user_id>/following')
 def show_following(user_id):
     """Show list of people this user is following."""
@@ -155,8 +145,6 @@ def show_following(user_id):
     serialized = user.serialize()
     return jsonify(user=serialized)
 
-
-
 @app.route('/users/<int:user_id>/followers')
 def users_followers(user_id):
     """Show list of followers of this user."""
@@ -164,8 +152,6 @@ def users_followers(user_id):
     user = User.query.get_or_404(user_id)
     serialized = user.serialize()
     return jsonify(user=serialized)
-
-
 
 @app.route('/users/follow/<int:follow_id>', methods=['POST'])
 def add_follow(follow_id):
@@ -179,9 +165,6 @@ def add_follow(follow_id):
 
     return jsonify({"user": "following added"})    
 
-
-
-
 @app.route('/users/unfollow/<int:follow_id>', methods=['POST'])
 def stop_following(follow_id):
     """Have currently-logged-in-user stop following this user."""
@@ -193,7 +176,6 @@ def stop_following(follow_id):
     db.session.commit()
 
     return jsonify({"user": "unfollowed user"})  
-
 
 @app.route('/users/<int:user_id>/update', methods=["POST"])
 def profile(user_id):
@@ -215,8 +197,7 @@ def profile(user_id):
             db.session.commit()
 
             return jsonify({"user": "edit user profile successful"})  
-
-
+    
 @app.route('/users/<int:user_id>/delete', methods=["POST"])
 def delete_user(user_id):
     """Delete user."""
@@ -227,62 +208,8 @@ def delete_user(user_id):
 
     return jsonify({"user": "user account deleted"})  
 
-
 ##############################################################################
 # Messages routes:
-
-@app.route('/messages/<int:message_id>/like', methods=['GET'])
-def get_like(message_id):
-    """Bring Message likes"""
-
-    liked_message = Message.query.get_or_404(message_id)
-
-    likes = [msg.id for msg in liked_message.likes]
-
-    return jsonify(likes)
-
-
-@app.route('/messages/<int:message_id>/like', methods=['POST'])
-def add_like(message_id):
-    """Like a message for the currently-logged-in user."""
-
-    userId = request.json["userId"]
-    user = User.query.get_or_404(userId)
-
-    liked_message = Message.query.get_or_404(message_id)
-
-
-    msg_likes = liked_message.likes
-
-    msg_likes.append(user)
-
-    db.session.commit()
-
-    return jsonify({"status": "liked the post"}) 
-
-
-@app.route('/messages/<int:message_id>/deleteLike', methods=['POST'])
-def delete_like(message_id):
-    """Delete a liked message for the currently-logged-in user."""
-
-    userId = request.json["userId"]
-    user = User.query.get_or_404(userId)
-
-    liked_message = Message.query.get_or_404(message_id)
-
-    msg_likes = liked_message.likes
-
-    msg_likes.remove(user)
-
-    db.session.commit()
-
-    return jsonify({"status": "unliked the post"}) 
-
-
-
-
-
-
 
 @app.route('/messages/<int:user_id>/new', methods=["POST"])
 def messages_add(user_id):
@@ -301,27 +228,21 @@ def messages_add(user_id):
         )
 
     user.messages.append(msg)
-
     db.session.add(msg)
-
     db.session.commit()
 
     return jsonify({"status": "post created"}) 
 
-
 @app.route('/messages/<int:message_id>', methods=["GET"])
 def messages_show(message_id):
     """Show a message."""
-
     msg = Message.query.get_or_404(message_id)
     serialized = msg.serialize()
     return jsonify(msg=serialized)
 
-
 @app.route('/messages/<int:message_id>/delete', methods=["POST"])
 def messages_destroy(message_id):
     """Delete a message."""
-
     userId = request.json["userId"]
     user = User.query.get_or_404(userId)
     msg = Message.query.get_or_404(message_id)
@@ -334,10 +255,48 @@ def messages_destroy(message_id):
 
     return jsonify({"status": "post deleted"}) 
 
+##############################################################################
+# likes
+
+@app.route('/messages/<int:message_id>/like', methods=['GET'])
+def get_like(message_id):
+    """Query the post likes"""
+
+    liked_message = Message.query.get_or_404(message_id)
+    likes = [msg.id for msg in liked_message.likes]
+
+    return jsonify(likes)
+
+@app.route('/messages/<int:message_id>/like', methods=['POST'])
+def add_like(message_id):
+    """Active user likes the post"""
+
+    userId = request.json["userId"]
+    user = User.query.get_or_404(userId)
+    liked_message = Message.query.get_or_404(message_id)
+
+    if user not in liked_message.likes:
+        liked_message.likes.append(user)
+        db.session.commit()
+
+    return jsonify({"status": "liked the post"}) 
+
+@app.route('/messages/<int:message_id>/deleteLike', methods=['POST'])
+def delete_like(message_id):
+    """Delete a liked message for the currently-logged-in user."""
+
+    userId = request.json["userId"]
+    user = User.query.get_or_404(userId)
+    liked_message = Message.query.get_or_404(message_id)
+
+    if user in liked_message.likes:
+        liked_message.likes.remove(user)
+        db.session.commit()
+
+    return jsonify({"status": "unliked the post"}) 
 
 ##############################################################################
 # Comments
-
 
 @app.route('/messages/<int:messageId>/comments', methods=['GET'])
 def get_comments(messageId):
@@ -351,7 +310,6 @@ def get_comments(messageId):
                 .all())
 
     serialized = [c.serialize() for c in comments]
-
 
     return jsonify(comments=serialized)
 
@@ -392,7 +350,6 @@ def delete_comments(comment_id):
 
     return jsonify({"status": "comment deleted"})  
 
-
 ##############################################################################
 # User Conversation
 
@@ -408,7 +365,6 @@ def add_convo():
         )
 
     db.session.add(convo)
-
     db.session.commit()
 
     return jsonify({"user": "conversation created"})
@@ -423,7 +379,6 @@ def get_userconvo(user_id):
     serialized = [c.serialize() for c in convo]
 
     return jsonify(convo=serialized)
-
 
 ##############################################################################
 # User letter    
@@ -443,7 +398,6 @@ def add_letter():
         )
 
     db.session.add(letter)
-
     db.session.commit()
 
     return jsonify({
@@ -451,8 +405,6 @@ def add_letter():
         "sender": letter.sender,
         "text": letter.text
     })
-
-
 
 @app.route('/letters/<int:conversation_id>', methods=['GET'])
 def get_letter(conversation_id):
@@ -464,11 +416,8 @@ def get_letter(conversation_id):
 
     return jsonify(letters=serialized)
 
-
-
 ##############################################################################
 # Homepage and error pages
-
 
 @app.route('/<int:user_id>')
 def homepage(user_id):
@@ -492,10 +441,8 @@ def homepage(user_id):
 
     return jsonify(messages=serialized)
 
-
 ##############################################################################
 # Turn off all caching in Flask
-
 
 @app.after_request
 def add_header(req):
@@ -536,7 +483,6 @@ def selectU(x):
     else:
         return True     
 
-
 def getU(uId):
     for u in users:
         if (u["userId"] == int(uId)):
@@ -544,9 +490,6 @@ def getU(uId):
 
 def removeU(socketId):
     filter(selectU(socketId),users)
-
-
-
 
 @socketio.on("connect")
 def connected():
@@ -560,7 +503,6 @@ def add(userId):
     addU(userId, request.sid)
     print(users)
     socketio.emit("getUsers", users)
-
 
 @socketio.on("sendMessage")
 def send(msg):
@@ -576,7 +518,6 @@ def notification(notif):
 def notification(notif):
     print(notif)
     socketio.emit("get", {'sender': notif["sender"], 'receiverId': notif["receiverId"], 'type': notif['type']})       
-
 
 @socketio.on("disconnect")
 def disconnected():

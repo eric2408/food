@@ -2,10 +2,11 @@ import { Link } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 import React from "react";
 import { useState, useContext, useEffect } from "react";
-import "./Login.scss";
 import { AuthContext } from "../../Context/AuthContext";
+import "./Login.scss";
 
-const Login = () => {
+const Login = () => 
+{
   const [inputs, setInputs] = useState({
     "email": "",
     "password": "",
@@ -16,20 +17,28 @@ const Login = () => {
   const { login, currentUser } = useContext(AuthContext);
 
 
-  const handleChange = (e) => {
+  const handleChange = (e) => 
+  {
     setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e) => 
+  {
     e.preventDefault();
     try {
       await login(inputs);
     } catch (err) {
-      setErr(err.response.data);
+      if(err.response.status = 401)
+      {
+        setErr("Unmatching email and password. Please try again.");
+      } else {
+        setErr(err.message);
+      }
     }
   };
 
-  if(currentUser){
+  if(currentUser)
+  {
     navigate("/");
   }
 
@@ -42,7 +51,7 @@ const Login = () => {
           <h1>Foodieland</h1>
           <h2>Login</h2>
           <form>
-          <input
+            <input
               type="text"
               placeholder="Email"
               name="email"
@@ -54,7 +63,7 @@ const Login = () => {
               name="password"
               onChange={handleChange}
             />
-            {err && err}
+            {err && <p style={{ color: "red", fontSize: "12px"}}>{err}</p>}
             <button onClick={handleLogin}>Login</button>
           </form>
           <div>
