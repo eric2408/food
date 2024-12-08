@@ -168,7 +168,7 @@ const Post = ({ socket, post, id }) =>
             <TextsmsOutlinedIcon />
             {comment.comments.length} {comment.comments.length > 1 ? <>Comments</> : <>Comment</>}
           </div>
-          <div className="item">
+          <div className="item" style={{ pointerEvents: "none" }}>
             <ShareOutlinedIcon />
             Share
           </div>

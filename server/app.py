@@ -7,6 +7,7 @@ from flask_socketio import SocketIO, emit
 # from flask_debugtoolbar import DebugToolbarExtension
 from flask.helpers import send_from_directory
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import text
 
 # from forms import UserAddForm, LoginForm, MessageForm, ProfileForm
 from models import db, connect_db, User, Message, Comments, Letter, Conversation
@@ -275,9 +276,14 @@ def add_like(message_id):
     user = User.query.get_or_404(userId)
     liked_message = Message.query.get_or_404(message_id)
 
+    print(f"liked message: {liked_message.likes}")
+    print(f"user: {user}")
+
     if user not in liked_message.likes:
         liked_message.likes.append(user)
         db.session.commit()
+    else:
+        return jsonify({"status": "already liked the post"}), 400
 
     return jsonify({"status": "liked the post"}) 
 
@@ -357,12 +363,26 @@ def delete_comments(comment_id):
 def add_convo():
     """Create a new conversation"""
 
-    senderId = request.json["senderId"]
-    receiverId = request.json["receiverId"]
+    senderId = str(request.json["senderId"])
+    receiverId = str(request.json["receiverId"])
 
-    convo = Conversation(
-            members=[senderId, receiverId]
-        )
+    # Ensure the IDs are in a consistent order
+    members = sorted([senderId, receiverId])
+
+    print(f"-------members-------{members}")
+
+    query = text("""
+        SELECT * FROM conversation
+        WHERE members @> ARRAY[:sender_id]::varchar[]
+        AND members @> ARRAY[:receiver_id]::varchar[]
+        LIMIT 1
+    """)
+    existing_convo = db.session.execute(query, {"sender_id": senderId, "receiver_id": receiverId}).fetchone()
+
+    if existing_convo:
+        return jsonify({"message": "Conversation already exists"}), 400
+
+    convo = Conversation(members=members)
 
     db.session.add(convo)
     db.session.commit()
@@ -477,31 +497,25 @@ def addU(userId, socketId):
     if (not any(u["userId"] == userId for u in users)):
          users.append({ "userId": userId, "socketId": socketId})
 
-def selectU(x):
-    if (u["socketId"] == x for u in users):
-        return False
-    else:
-        return True     
+def removeU(socketId):
+    global users
+    users = [u for u in users if u["socketId"] != socketId]
 
 def getU(uId):
     for u in users:
         if (u["userId"] == int(uId)):
             print(u)
 
-def removeU(socketId):
-    filter(selectU(socketId),users)
-
 @socketio.on("connect")
 def connected():
     """event listener when client connects to the server"""
-    print("client has connected")
-
-    emit("connect",{"data":"user is connected"})
+    print("New client connection established")
+    emit("connect_data", {"socketMsg":"user is connected"})
 
 @socketio.on("addUser")
 def add(userId):
     addU(userId, request.sid)
-    print(users)
+    print(f" users list: ${users}")
     socketio.emit("getUsers", users)
 
 @socketio.on("sendMessage")
@@ -528,4 +542,4 @@ def disconnected():
 
 if __name__ == '__main__':
     socketio.run(app)
-    app.run()        
+    app.run()

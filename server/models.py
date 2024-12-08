@@ -6,7 +6,6 @@ from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 
 
-
 bcrypt = Bcrypt()
 db = SQLAlchemy()
 
@@ -47,6 +46,11 @@ class Likes(db.Model):
     message_id = db.Column(
         db.Integer,
         db.ForeignKey('messages.id', ondelete='cascade')
+    )
+
+    # Add unique constraint on user_id and message_id combination
+    __table_args__ = (
+        db.UniqueConstraint('user_id', 'message_id', name='_user_message_uc'),
     )
 
 class Comments(db.Model):
@@ -308,7 +312,7 @@ class Letter(db.Model):
     timestamp = db.Column(
         db.DateTime,
         nullable=False,
-        default=datetime.utcnow(),
+        default=datetime.utcnow()
     )
 
     def serialize(self):
@@ -331,18 +335,18 @@ class Conversation(db.Model):
 
     id = db.Column(
         db.Integer,
-        primary_key=True,
+        primary_key=True
     )
 
     members = db.Column(
-        db.ARRAY(db.String),
-        nullable=False,
+        db.ARRAY(db.Integer),
+        nullable=False
     )
 
     timestamp = db.Column(
         db.DateTime,
         nullable=False,
-        default=datetime.utcnow(),
+        default=datetime.utcnow()
     )
 
     def serialize(self):

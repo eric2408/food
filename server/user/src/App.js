@@ -29,20 +29,33 @@ function App()
 
   useEffect(() =>
   {
-    socket.current = io(`${config.wsBaseUrl}` , {
-      transports: ["websocket", "polling"]
-    });
+    // Only initiate socket connection if the user is logged in
+    if (!currentUser) return;
 
-    socket.current.on("connect", () => {
+    socket.current = io(`${config.wsBaseUrl}`);
+
+    // Handle connection
+    socket.current.on("connect", () => 
+    {
       console.log("Socket connected:", socket.current.id);
     });
 
-    return () => {
-      if (socket.current) {
+    // Handle disconnection
+    socket.current.on("disconnect", () => 
+    {
+      console.log("Socket disconnected:", socket.current.id);
+    });
+
+    // Handle socket connection clean up
+    return () => 
+    {
+      if (socket.current) 
+      {
         socket.current.disconnect();
+        console.log("Socket connection closed");
       }
     };
-  }, []);
+  }, [currentUser]);
 
   useEffect(() => 
   {
@@ -133,7 +146,7 @@ function App()
       children: [
         {
           path: "/convo/chat",
-          element: <Messenger />,
+          element: <Messenger socket={socket}/>,
         }
       ]
     },

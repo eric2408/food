@@ -62,14 +62,18 @@ export default function Messenger({ socket })
   
   useEffect(() => 
   {
-    socket.current.on("getMessage", (data) => {
-      setArrivalMessage({
-        sender: data.senderId,
-        text: data.text,
-        createdAt: Date.now(),
+    if (socket.current) 
+    {
+      socket.current.on("getMessage", (data) => 
+      {
+        setArrivalMessage({
+          sender: data.senderId,
+          text: data.text,
+          createdAt: Date.now()
+        });
       });
-    });
-  }, [messages]);
+    };
+  }, [messages, socket]);
 
   useEffect(() => 
   {
