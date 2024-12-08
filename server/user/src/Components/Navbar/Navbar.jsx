@@ -1,4 +1,7 @@
-import "./Navbar.scss";
+import { Link } from "react-router-dom";
+import { useContext, useState, useEffect, useRef } from "react";
+import axios from "axios";
+
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import WbSunnyOutlinedIcon from "@mui/icons-material/WbSunnyOutlined";
@@ -7,18 +10,17 @@ import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
-import { Link } from "react-router-dom";
-import { useContext, useState } from "react";
-import { DarkModeContext } from "../../Context/DarkMode";
-import { AuthContext } from "../../Context/AuthContext";
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
-import axios from "axios";
-import { useEffect, useRef } from "react";
 import { Badge } from '@mui/material';
-import io from "socket.io-client";
 import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 
-const Navbar = () => {
+import config from "../../config";
+import { DarkModeContext } from "../../Context/DarkMode";
+import { AuthContext } from "../../Context/AuthContext";
+import "./Navbar.scss";
+
+const Navbar = ({ socket }) => 
+{
   const { toggle, darkMode } = useContext(DarkModeContext);
   const { currentUser } = useContext(AuthContext);
   const [open, setOpen] = useState(false);
@@ -30,52 +32,48 @@ const Navbar = () => {
   const [info, setInfo] = useState([]);
   const [loadingTwo, setLoadingTwo] = useState(true);
   const [notifications, setNotifications] = useState([]);
-  const socket = useRef();
   const [openThree, setOpenThree] = useState(false);
   const [width, setWidth] = useState(window.innerWidth);
   const [openFour, setOpenFour] = useState(false);
 
-  function handleWindowSizeChange() {
-      setWidth(window.innerWidth);
+  function handleWindowSizeChange() 
+  {
+    setWidth(window.innerWidth);
   }
-  useEffect(() => {
+
+  useEffect(() => 
+  {
       window.addEventListener('resize', handleWindowSizeChange);
-      return () => {
+      return () => 
+      {
           window.removeEventListener('resize', handleWindowSizeChange);
       }
   }, []);
   
   const isMobile = width <= 480;
 
-
-  useEffect(() => {
-    socket.current = io("https://foodieland1234.herokuapp.com/");
-  }, []);
-
-  useEffect(() => {
-    currentUser && socket.current.emit("addUser", currentUser.id);
-  }, [socket, currentUser]);
-
-
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try{
-        const res = await axios.get(`https://foodieland1234.herokuapp.com/users/`+ currentUser.id).then((response)=> {
+  useEffect(() => 
+  {
+    const fetchUser = async () => 
+    {
+      try {
+        const res = await axios.get(`${config.apiBaseUrl}users/`+ currentUser.id).then((response)=> 
+        {
           setUsers(response.data);
           setLoading(false);
-      });
+        });
       } catch(e){
         console.log(e)
       }
     };
-      fetchUser();
+    fetchUser();
   }, []);
 
-  useEffect(() => {
+  useEffect(() => 
+  {
     const fetchData = async () => {
       try{
-        const res = await axios.get(`https://foodieland1234.herokuapp.com/users?q=${query}`).then((response)=> {
+        const res = await axios.get(`${config.apiBaseUrl}users?q=${query}`).then((response)=> {
           setInfo(response.data);
           setLoadingTwo(false);
       });
@@ -85,27 +83,38 @@ const Navbar = () => {
     };
     if (query.length > 1) fetchData();
   }, [query]);
-
   
+  useEffect(() => 
+  {
+    if (socket.current) 
+    {
+      console.log(socket.current)
+      socket.current.on("getNotification", (data) => 
+      {
+        console.log("data: ", data);
+        data.receiverId === currentUser.id && setNotifications((prev) => [...prev, data]);
+      });
   
-  useEffect(() => {
-    socket.current.on("getNotification", (data) => {
-      data.receiverId === currentUser.id && setNotifications((prev) => [...prev, data]);
-    });
-    socket.current.on("get", (data) => {
-      data.receiverId === `${currentUser.id}` && setNotifications((prev) => [...prev, data]);
-    });
+      socket.current.on("get", (data) => 
+      {
+        console.log("data: ", data);
+        data.receiverId === `${currentUser.id}` && setNotifications((prev) => [...prev, data]);
+      });
+    }
+    
   }, [socket]);
 
-  const displayNotification = ({ sender, receiverId, type }) => {
+  const displayNotification = ({ sender, receiverId, type }) => 
+  {
     let action;
 
-    if (type === 1) {
+    if (type === 1) 
+    {
       action = "liked";
       return (
         <span className="notification">{`${sender} ${action} your post.`}</span>
       );
-    } else if (type === 2) {
+    } else if (type === 2){
       action = "commented";
       return (
         <span className="notification">{`${sender} ${action} on your post.`}</span>
@@ -116,18 +125,18 @@ const Navbar = () => {
         <span className="notification">{`${sender} ${action} you a message.`}</span>
       );
     }
-
   };
 
-
-  const handleRead = () => {
+  const handleRead = () => 
+  {
     setNotifications([]);
     setOpenThree(false);
   };
 
   if(loading) return <div>loading</div>
 
-  if(isMobile && openFour){
+  if(isMobile && openFour)
+  {
     return (
       <div className="navbar">
         <div className="left">
@@ -155,12 +164,11 @@ const Navbar = () => {
     );
   };
   
-
   return (
     <div className="navbar">
       <div className="left">
         <Link to="/" style={{ textDecoration: "none" }} >
-          <img src={'https://foodieland1234.herokuapp.com/Pictures/Foodieland.png'} alt="" />
+          <img src={`/Pictures/Foodieland.png`} alt="" />
         </Link>
         {darkMode ? (
           <WbSunnyOutlinedIcon style={{ cursor: "pointer" }} onClick={toggle}/>
@@ -211,27 +219,32 @@ const Navbar = () => {
         </div>
       )}
         <div className="user">
-                            {currentUser ? open ? <div className="dropdown" onClick={() => setOpen(!open)}>
-                              <img
-                              src={users.user.image_url}
-                              alt=""
-                              /> 
-                                <div className="dropmenu">
-                                Welcome {currentUser?.username} 
-                                  <div className="pro">
-                                    <ManageAccountsIcon style={{'marginRight': 10}}/>
-                                    {darkMode ?<Link style={{textDecoration: 'none', color: 'white'}} to={'/profile/'+currentUser?.id}>PROFILE</Link> :
-                                    <Link style={{textDecoration: 'none', color: 'black'}} to={'/profile/'+currentUser?.id}>PROFILE</Link>} 
-                                  </div>
-                                  <div className="sign"onClick={() => logout()}>SIGN OUT</div>
-                                </div>
-                              </div> : <div className="dropdown" onClick={() => setOpen(!open)}>
-                              <img
-                                src={users.user.image_url}
-                                alt=""
-                              />
-                              </div>
-                              : <div className="menu">REGISTER</div>}
+          {currentUser ? open ? <div className="dropdown" onClick={() => setOpen(!open)}>
+            <img
+              src={users.user.image_url}
+              alt=""
+            /> 
+              <div className="dropmenu">
+                Welcome {currentUser?.username} 
+                <Link 
+                  to={`/profile/${currentUser?.id}`} 
+                  style={{ textDecoration: 'none' }}
+                  className="pro"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', color: darkMode ? 'white' : 'black' }}>
+                    <ManageAccountsIcon style={{ marginRight: 10 }} />
+                    PROFILE
+                  </div>
+                </Link>
+                <div className="sign"onClick={() => logout()}>SIGN OUT</div>
+              </div>
+            </div> : <div className="dropdown" onClick={() => setOpen(!open)}>
+            <img
+              src={users.user.image_url}
+              alt=""
+            />
+            </div>
+            : <div className="menu">REGISTER</div>}
         </div>
       </div>
     </div>

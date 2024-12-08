@@ -1,5 +1,6 @@
 import axios from "axios";
+import config from "./config";
 
 export const makeRequest = axios.create({
-  baseURL: "https://foodieland1234.herokuapp.com/"
+  baseURL: `${config.apiBaseUrl}`
 });

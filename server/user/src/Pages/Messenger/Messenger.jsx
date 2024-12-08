@@ -1,14 +1,15 @@
-import "./Messenger.scss";
+import { useContext, useEffect, useRef, useState } from "react";
+import axios from "axios";
 import Conversations from "../../Components/Conversations/Conversations";
 import Message from "../../Components/Message/Message";
 import OnlineChat from "../../Components/OnlineChat/OnlineChat";
-import { useContext, useEffect, useRef, useState } from "react";
-import { AuthContext } from "../../Context/AuthContext";
-import axios from "axios";
-import io from "socket.io-client";
 import MobileChat from "../../Components/mobileChat/mobileChat";
+import { AuthContext } from "../../Context/AuthContext";
+import config from "../../config";
+import "./Messenger.scss";
 
-export default function Messenger() {
+export default function Messenger({ socket }) 
+{
   const [conversations, setConversations] = useState([]);
   let allConvo = [];
   const [currentChat, setCurrentChat] = useState(null);
@@ -16,7 +17,6 @@ export default function Messenger() {
   const [newMessage, setNewMessage] = useState("");
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
-  const socket = useRef();
   const { currentUser } = useContext(AuthContext);
   const scrollRef = useRef();
   const [count, setCount] = useState(1);
@@ -26,59 +26,68 @@ export default function Messenger() {
   const [isFollowing, setIsFollowing] = useState(null);
   const [width, setWidth] = useState(window.innerWidth);
 
-    function handleWindowSizeChange() {
-        setWidth(window.innerWidth);
-    }
-    useEffect(() => {
-        window.addEventListener('resize', handleWindowSizeChange);
-        return () => {
-            window.removeEventListener('resize', handleWindowSizeChange);
-        }
-    }, []);
+  function handleWindowSizeChange() 
+  {
+    setWidth(window.innerWidth);
+  }
 
-    const isMobile = width <= 480;
+  useEffect(() => 
+  {
+      window.addEventListener('resize', handleWindowSizeChange);
+      return () => 
+      {
+          window.removeEventListener('resize', handleWindowSizeChange);
+      }
+  }, []);
 
-    useEffect(() => {
-        const fetchUser = async () => {
-          try{
-            const res = await axios.get(`https://foodieland1234.herokuapp.com/users/`+ currentUser.id).then((response)=> {
-              setUserss(response.data);
-              setIsFollowing(response.data.user.following)
-              setIsLoading(false);
-          });
-          } catch(e){
-            console.log(e)
-          }
-        };
-          fetchUser();
-    }, [currentUser.id]);
+  const isMobile = width <= 480;
+
+  useEffect(() => 
+  {
+    const fetchUser = async () => 
+    {
+      try {
+        const res = await axios.get(`${config.apiBaseUrl}users/`+ currentUser.id).then((response)=> 
+        {
+          setUserss(response.data);
+          setIsFollowing(response.data.user.following)
+          setIsLoading(false);
+        });
+      } catch(e){
+        console.log(e)
+      }
+    };
+    fetchUser();
+  }, [currentUser.id]);
   
-
-
-
-  useEffect(() => {
-    socket.current = io("https://foodieland1234.herokuapp.com/");
-    socket.current.on("getMessage", (data) => {
-      setArrivalMessage({
-        sender: data.senderId,
-        text: data.text,
-        createdAt: Date.now(),
+  useEffect(() => 
+  {
+    if (socket.current) 
+    {
+      socket.current.on("getMessage", (data) => 
+      {
+        setArrivalMessage({
+          sender: data.senderId,
+          text: data.text,
+          createdAt: Date.now()
+        });
       });
-    });
-  }, [messages]);
+    };
+  }, [messages, socket]);
 
-
-  useEffect(() => {
+  useEffect(() => 
+  {
     arrivalMessage &&
       currentChat?.members.includes(`${arrivalMessage.sender}`) &&
       setMessages((prev) =>[...prev, arrivalMessage]);
   }, [arrivalMessage, currentChat]);
 
-  
-  useEffect(() => {
-    socket.current.emit("addUser", currentUser.id);
-    if(!isLoading){
-      socket.current.on("getUsers", (users) => {
+  useEffect(() => 
+  {
+    if(!isLoading)
+    {
+      socket.current.on("getUsers", (users) => 
+      {
         setOnlineUsers(
           isFollowing.filter((f) => users.some((u) => `${u.userId}` === f))
         );
@@ -86,11 +95,12 @@ export default function Messenger() {
     }
   }, [currentUser.id, isLoading]);
 
-
-  useEffect(() => {
-    const getConversations = async () => {
+  useEffect(() => 
+  {
+    const getConversations = async () => 
+    {
       try {
-        const res = await axios.get("https://foodieland1234.herokuapp.com/conversation/" + currentUser.id);
+        const res = await axios.get(`${config.apiBaseUrl}conversation/` + currentUser.id);
         allConvo = []
         res.data.convo.map(chat => chat.members.includes(`${currentUser.id}`)? allConvo.push(chat): "")
         setConversations(allConvo)
@@ -101,16 +111,19 @@ export default function Messenger() {
     getConversations();
   }, [currentUser.id]);
 
-
-  useEffect(() => {
-    const getMessages = async () => {
-      if(count > 1){
+  useEffect(() => 
+  {
+    const getMessages = async () => 
+    {
+      if(count > 1)
+      {
         try {
-            setLoading(true)
-            const res = await axios.get(`https://foodieland1234.herokuapp.com/letters/${currentChat?.id}`).then((response)=> {
-                setMessages(response.data.letters);
-                setLoading(false);
-            });
+          setLoading(true)
+          const res = await axios.get(`${config.apiBaseUrl}letters/${currentChat?.id}`).then((response)=> 
+          {
+            setMessages(response.data.letters);
+            setLoading(false);
+          });
       } catch (err) {
         console.log(err);
       }
@@ -119,8 +132,8 @@ export default function Messenger() {
     getMessages();
   }, [currentChat]);
 
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => 
+  {
     e.preventDefault();
     const message = {
       conversationId: currentChat.id,
@@ -132,7 +145,6 @@ export default function Messenger() {
       (member) => member !== `${currentUser.id}`
     );
 
-
     socket.current.emit("sendMessage", {
       senderId: currentUser.id,
       receiverId,
@@ -140,7 +152,7 @@ export default function Messenger() {
     });
 
     try {
-      const res = await axios.post("https://foodieland1234.herokuapp.com/letters", message);
+      const res = await axios.post(`${config.apiBaseUrl}letters`, message);
       setMessages([...messages, res.data]);
       setNewMessage("");
     } catch (err) {
@@ -148,12 +160,13 @@ export default function Messenger() {
     }
   };
 
-  useEffect(() => {
+  useEffect(() => 
+  {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, currentChat]);
 
-
-  const handleNotification = (type) => {
+  const handleNotification = (type) => 
+  {
     const receiver = currentChat.members.find(
       (member) => member !== `${currentUser.id}`
     );
@@ -168,7 +181,8 @@ export default function Messenger() {
 
   if(loading || isLoading) return <>loading</>
 
-  if(isMobile){
+  if(isMobile)
+  {
     return (
       <>
         <div className="messenger">

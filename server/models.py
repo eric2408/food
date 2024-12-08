@@ -1,10 +1,9 @@
-"""SQLAlchemy models for Warbler."""
+"""SQLAlchemy models"""
 
 from datetime import datetime
 
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
-
 
 
 bcrypt = Bcrypt()
@@ -46,8 +45,12 @@ class Likes(db.Model):
 
     message_id = db.Column(
         db.Integer,
-        db.ForeignKey('messages.id', ondelete='cascade'),
-        unique=True
+        db.ForeignKey('messages.id', ondelete='cascade')
+    )
+
+    # Add unique constraint on user_id and message_id combination
+    __table_args__ = (
+        db.UniqueConstraint('user_id', 'message_id', name='_user_message_uc'),
     )
 
 class Comments(db.Model):
@@ -84,11 +87,11 @@ class Comments(db.Model):
     def serialize(self):
 
         return {
-                'id': self.id,
-                'text': self.text,
-                'timestamp': self.timestamp,
-                'message_id': self.message_id,
-                'user_id': self.user_id
+            'id': self.id,
+            'text': self.text,
+            'timestamp': self.timestamp,
+            'message_id': self.message_id,
+            'user_id': self.user_id
         }    
         
     def __repr__(self):
@@ -101,24 +104,24 @@ class User(db.Model):
 
     id = db.Column(
         db.Integer,
-        primary_key=True,
+        primary_key=True
     )
 
     email = db.Column(
         db.Text,
         nullable=False,
-        unique=True,
+        unique=True
     )
 
     username = db.Column(
         db.Text,
         nullable=False,
-        unique=True,
+        unique=True
     )
 
     image_url = db.Column(
         db.Text,
-        default="https://isobarscience.com/wp-content/uploads/2020/09/default-profile-picture1.jpg",
+        default="https://isobarscience.com/wp-content/uploads/2020/09/default-profile-picture1.jpg"
     )
 
     header_image_url = db.Column(
@@ -127,16 +130,16 @@ class User(db.Model):
     )
 
     bio = db.Column(
-        db.Text,
+        db.Text
     )
 
     location = db.Column(
-        db.Text,
+        db.Text
     )
 
     password = db.Column(
         db.Text,
-        nullable=False,
+        nullable=False
     )
 
     messages = db.relationship('Message')
@@ -163,17 +166,17 @@ class User(db.Model):
     def serialize(self):
 
         return {
-                'id': self.id,
-                'email': self.email,
-                'username': self.username,
-                'image_url': self.image_url,
-                'header_image_url': self.header_image_url,
-                'bio': self.bio,
-                'location': self.location,
-                'password': self.password,
-                'followers': list(map(str, self.followers)),
-                'following': list(map(str, self.following)),
-                'likes': list(map(str, self.likes))
+            'id': self.id,
+            'email': self.email,
+            'username': self.username,
+            'image_url': self.image_url,
+            'header_image_url': self.header_image_url,
+            'bio': self.bio,
+            'location': self.location,
+            'password': self.password,
+            'followers': list(map(str, self.followers)),
+            'following': list(map(str, self.following)),
+            'likes': list(map(str, self.likes))
         } 
 
     def __repr__(self):
@@ -213,7 +216,6 @@ class User(db.Model):
     def authenticate(cls, email, password):
         """Find user with `username` and `password`.
 
-        This is a class method (call it on the class, not an individual user.)
         It searches for a user whose password hash matches this password
         and, if it finds such a user, returns that user object.
 
@@ -227,8 +229,7 @@ class User(db.Model):
             if is_auth:
                 return user
 
-        return False
-
+        return None
 
 class Message(db.Model):
     """An individual Message/Post."""
@@ -237,22 +238,22 @@ class Message(db.Model):
 
     id = db.Column(
         db.Integer,
-        primary_key=True,
+        primary_key=True
     )
 
     text = db.Column(
         db.String(140),
-        nullable=False,
+        nullable=False
     )
 
     imageUrl = db.Column(
-        db.Text,
+        db.Text
     )
 
     timestamp = db.Column(
         db.DateTime,
         nullable=False,
-        default=datetime.utcnow(),
+        default=datetime.utcnow()
     )
 
     likes = db.relationship(
@@ -271,12 +272,12 @@ class Message(db.Model):
     def serialize(self):
 
         return {
-                'id': self.id,
-                'text': self.text,
-                'imageUrl': self.imageUrl,
-                'timestamp': self.timestamp,
-                'likes': list(map(str, self.likes)),
-                'user_id': self.user_id
+            'id': self.id,
+            'text': self.text,
+            'imageUrl': self.imageUrl,
+            'timestamp': self.timestamp,
+            'likes': list(map(str, self.likes)),
+            'user_id': self.user_id
         }    
         
     def __repr__(self):
@@ -311,7 +312,7 @@ class Letter(db.Model):
     timestamp = db.Column(
         db.DateTime,
         nullable=False,
-        default=datetime.utcnow(),
+        default=datetime.utcnow()
     )
 
     def serialize(self):
@@ -334,26 +335,26 @@ class Conversation(db.Model):
 
     id = db.Column(
         db.Integer,
-        primary_key=True,
+        primary_key=True
     )
 
     members = db.Column(
-        db.ARRAY(db.String),
-        nullable=False,
+        db.ARRAY(db.Integer),
+        nullable=False
     )
 
     timestamp = db.Column(
         db.DateTime,
         nullable=False,
-        default=datetime.utcnow(),
+        default=datetime.utcnow()
     )
 
     def serialize(self):
 
         return {
-                'id': self.id,
-                'members': self.members,
-                'timestamp': self.timestamp
+            'id': self.id,
+            'members': self.members,
+            'timestamp': self.timestamp
         }    
         
     def __repr__(self):

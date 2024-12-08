@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { makeRequest } from "../../axiosRequest";
 import axios from "axios";
 import Comment from "../Comment/Comment";
+import config from "../../config";
 
 const Comments = ({ handleNotification, postId }) => {
   const [desc, setDesc] = useState("");
@@ -15,7 +16,7 @@ const Comments = ({ handleNotification, postId }) => {
   useEffect(() => {
     const fetchUser = async () => {
       try{
-        const res = await axios.get(`https://foodieland1234.herokuapp.com/users/`+ currentUser.id).then((response)=> {
+        const res = await axios.get(`${config.apiBaseUrl}users/`+ currentUser.id).then((response)=> {
           setUsers(response.data);
           setLoading(false);
       });
@@ -28,7 +29,7 @@ const Comments = ({ handleNotification, postId }) => {
 
 
   const { isLoading, error, data } = useQuery(["comments"], () =>
-    makeRequest.get(`/messages/${postId}/comments`).then((res) => {
+    makeRequest.get(`messages/${postId}/comments`).then((res) => {
       return res.data;
     })
   );

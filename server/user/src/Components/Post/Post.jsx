@@ -1,19 +1,22 @@
-import "./Post.scss";
+import { useEffect, useState, useContext } from "react";
+import { Link } from "react-router-dom";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import axios from "axios";
+
+import Comments from "../Comments/Comments";
+import { makeRequest } from "../../axiosRequest";
+import { AuthContext } from "../../Context/AuthContext";
+import config from "../../config";
+
 import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined";
 import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
 import TextsmsOutlinedIcon from "@mui/icons-material/TextsmsOutlined";
 import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import { Link} from "react-router-dom";
-import Comments from "../Comments/Comments";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import { makeRequest } from "../../axiosRequest";
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { useContext } from "react";
-import { AuthContext } from "../../Context/AuthContext";
+import "./Post.scss";
 
-const Post = ({ socket, post, id }) => {
+const Post = ({ socket, post, id }) => 
+{
   const [commentOpen, setCommentOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [users, setUsers] = useState([]);
@@ -23,13 +26,16 @@ const Post = ({ socket, post, id }) => {
 
   const { currentUser } = useContext(AuthContext);
 
-  useEffect(() => {
-      const fetchUser = async () => {
-        try{
-          const res = await axios.get(`https://foodieland1234.herokuapp.com/users/`+ id).then((response)=> {
+  useEffect(() => 
+  {
+      const fetchUser = async () => 
+      {
+        try {
+          const res = await axios.get(`${config.apiBaseUrl}users/`+ id).then((response)=> 
+          {
             setUsers(response.data);
             setLoading(false);
-        });
+          });
         } catch(e){
           console.log(e)
         }
@@ -37,74 +43,88 @@ const Post = ({ socket, post, id }) => {
         fetchUser();
   }, [id]);
 
-  useEffect(() => {
-    const fetchComment = async () => {
-      try{
-        const res = await axios.get(`https://foodieland1234.herokuapp.com/messages/${post.id}/comments`).then((response)=> {
+  useEffect(() => 
+  {
+    const fetchComment = async () => 
+    {
+      try {
+        const res = await axios.get(`${config.apiBaseUrl}messages/${post.id}/comments`).then((response)=> 
+        {
           setComment(response.data);
           setCommentLoading(false);
-      });
+        });
       } catch(e){
         console.log(e)
       }
     };
       fetchComment();
-}, []);
+  }, []);
 
   const { isLoading, error, data } = useQuery(["likes", post.id], () =>
-  makeRequest.get(`/messages/${post.id}/like`).then((res) => {
-  return res.data;
-})
-);
+  makeRequest.get(`messages/${post.id}/like`).then((res) => 
+  {
+    console.log("res.data: ", res.data);
+    return res.data;
+  }));
 
   const queryClient = useQueryClient();
 
   const mutation = useMutation(
-    (liked) => {
-      if (liked) return makeRequest.post(`/messages/${post.id}/deleteLike`, { "userId": `${currentUser.id}` });
-      return makeRequest.post(`/messages/${post.id}/like`, { "userId": `${currentUser.id}` });
+    (liked) =>
+    {
+      if(liked)
+      {
+        return makeRequest.post(`/messages/${post.id}/deleteLike`, { "userId": `${currentUser.id}` });
+      } else {
+        console.log("currentUser.id: ", currentUser.id);
+        return makeRequest.post(`/messages/${post.id}/like`, { "userId": `${currentUser.id}` });
+      }
     },
     {
-      onSuccess: () => {
+      onSuccess: () =>
+      {
         queryClient.invalidateQueries(["likes"]);
-      },
+      }
     }
   );
 
   const deleteMutation = useMutation(
-    (postId) => {
+    (postId) => 
+    {
       return makeRequest.post(`/messages/${postId}/delete`, { "userId": `${id}` });
     },
     {
-      onSuccess: () => {
+      onSuccess: () => 
+      {
         queryClient.invalidateQueries(["posts"]);
         window.location.reload();
-      },
+      }
     }
   );
 
-  const handleLike = () => {
+  const handleLike = () => 
+  {
     mutation.mutate(data.includes(currentUser.id));
   };
   
-
-
-  const handleDelete = () => {
+  const handleDelete = () => 
+  {
     deleteMutation.mutate(post.id);
   };
 
-
-
-  const handleNotification = (type) => {
-    socket.current.emit("sendNotification", {
+  const handleNotification = (type) => 
+  {
+    socket.current.emit("sendNotification", 
+    {
       sender: currentUser.username,
       receiverId: users.user.id,
-      type,
+      type
     });
   };
 
   if(loading) return <div>loading</div>
   if(commentLoading) return <div>loading</div>
+
   return (
     <div className="post">
       <div className="container">
@@ -148,7 +168,7 @@ const Post = ({ socket, post, id }) => {
             <TextsmsOutlinedIcon />
             {comment.comments.length} {comment.comments.length > 1 ? <>Comments</> : <>Comment</>}
           </div>
-          <div className="item">
+          <div className="item" style={{ pointerEvents: "none" }}>
             <ShareOutlinedIcon />
             Share
           </div>

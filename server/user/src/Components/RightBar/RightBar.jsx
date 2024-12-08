@@ -1,13 +1,13 @@
-import "./RightBar.scss";
-import Online from "../Online/Online";
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { useContext } from "react";
-import { AuthContext } from "../../Context/AuthContext";
+import { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
+import Online from "../Online/Online";
+import config from "../../config";
+import { AuthContext } from "../../Context/AuthContext";
+import "./RightBar.scss";
 
-const RightBar = () => {
-
+const RightBar = () => 
+{
   const [users, setUsers] = useState(null);
   const [isLoading, setLoading] = useState(true);
   const [usersTwo, setUsersTwo] = useState(null);
@@ -16,10 +16,12 @@ const RightBar = () => {
   const [isLoadingThree, setLoadingThree] = useState(true);
   const { currentUser } = useContext(AuthContext);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try{
-        const res = await axios.get(`https://foodieland1234.herokuapp.com/users/${currentUser.id}/followers`).then((response)=> {
+  useEffect(() => 
+  {
+    const fetchUser = async () => 
+    {
+      try {
+        const res = await axios.get(`${config.apiBaseUrl}users/${currentUser.id}/followers`).then((response)=> {
           setUsers(response.data);
           setLoading(false);
       });
@@ -30,10 +32,12 @@ const RightBar = () => {
       fetchUser();
 }, []);
 
-useEffect(() => {
-  const fetchUser = async () => {
-    try{
-      const res = await axios.get(`https://foodieland1234.herokuapp.com/users/${22}`).then((response)=> {
+useEffect(() => 
+{
+  const fetchUser = async () => 
+  {
+    try {
+      const res = await axios.get(`${config.apiBaseUrl}users/${22}`).then((response)=> {
         setUsersTwo(response.data);
         setLoadingTwo(false);
     });
@@ -44,10 +48,12 @@ useEffect(() => {
     fetchUser();
 }, []);
 
-useEffect(() => {
-  const fetchUser = async () => {
-    try{
-      const res = await axios.get(`https://foodieland1234.herokuapp.com/users/${142}`).then((response)=> {
+useEffect(() => 
+{
+  const fetchUser = async () => 
+  {
+    try {
+      const res = await axios.get(`${config.apiBaseUrl}users/${142}`).then((response)=> {
         setUsersThree(response.data);
         setLoadingThree(false);
     });
@@ -58,7 +64,8 @@ useEffect(() => {
     fetchUser();
 }, []);
 
-if (isLoading || isLoadingTwo || isLoadingThree) {
+if (isLoading || isLoadingTwo || isLoadingThree)
+{
   return (
     <div className="rightBar">
       <div className="container">
@@ -72,9 +79,6 @@ if (isLoading || isLoadingTwo || isLoadingThree) {
               />
               <span>Joe</span>
             </div>
-            <div className="buttons">
-              <button>follow</button>
-            </div>
           </div>
           <div className="user">
             <div className="userInfo">
@@ -84,16 +88,13 @@ if (isLoading || isLoadingTwo || isLoadingThree) {
               />
               <span>Joe</span>
             </div>
-            <div className="buttons">
-              <button>follow</button>
-            </div>
           </div>
         </div>
         <div className="item">
         <span>Sponsored</span>
           <div className="user">
               <img
-                src="https://foodieland1234.herokuapp.com/Pictures/Ad.png"
+                src={`/Pictures/Ad.png`}
                 alt=""
               />
           </div>
@@ -144,14 +145,15 @@ if (isLoading || isLoadingTwo || isLoadingThree) {
           <span>Sponsored</span>
           <div className="user">
               <img
-                src="https://foodieland1234.herokuapp.com/Pictures/Ad.png"
+                src={`/Pictures/Ad.png`}
                 alt=""
               />
           </div>
         </div>
         <div className="item">
           <span>Online Friends</span>
-          {users.user.following.length > 0 && users.user.following.map((u) => (
+          {users.user.following.length > 0 && 
+          users.user.following.map((u) => (
             <Online key={u.id} user={u} />
           ))}
         </div>

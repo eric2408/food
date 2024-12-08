@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import "./Conversation.scss";
 import axios from "axios";
+import config from "../../config";
 
 function Conversations({ conversation, currentUser }) {
     const [users, setUsers] = useState(null);
@@ -10,7 +11,7 @@ function Conversations({ conversation, currentUser }) {
   
       const getUser = async () => {
         try {
-          const res = await axios("https://foodieland1234.herokuapp.com/users/" + friendId);
+          const res = await axios(`${config.apiBaseUrl}users/` + friendId);
           setUsers(res.data);
         } catch (err) {
           console.log(err);

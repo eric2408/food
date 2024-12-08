@@ -1,21 +1,23 @@
-import "./Profile.scss";
+import { useEffect, useState, useContext } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import axios from "axios";
+
+import Posts from "../../Components/Posts/Posts"
+import Share from "../../Components/Share/Share"
+import Update from "../../Components/Edit/Edit";
+import { AuthContext } from "../../Context/AuthContext";
+import { makeRequest } from "../../axiosRequest";
+import config from "../../config";
+
+import SendIcon from '@mui/icons-material/Send';
 import PlaceIcon from "@mui/icons-material/Place";
 import LanguageIcon from "@mui/icons-material/Language";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import Posts from "../../Components/Posts/Posts"
-import Share from "../../Components/Share/Share"
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import { useContext } from "react";
-import { AuthContext } from "../../Context/AuthContext";
-import { makeRequest } from "../../axiosRequest";
-import Update from "../../Components/Edit/Edit";
-import SendIcon from '@mui/icons-material/Send';
-import { Link } from "react-router-dom";
+import "./Profile.scss";
 
-const Profile = () => {
+const Profile = ({ socket }) => 
+{
   const [openEdit, setOpenEdit] = useState(false);
   const userId = parseInt(useLocation().pathname.split("/")[2]);
   const [users, setUsers] = useState([]);
@@ -27,28 +29,34 @@ const Profile = () => {
   const [width, setWidth] = useState(window.innerWidth);
 
 
-
-  function handleWindowSizeChange() {
+  function handleWindowSizeChange() 
+  {
     setWidth(window.innerWidth);
   }
-  useEffect(() => {
-      window.addEventListener('resize', handleWindowSizeChange);
-      return () => {
-          window.removeEventListener('resize', handleWindowSizeChange);
-      }
+
+  useEffect(() => 
+  {
+    window.addEventListener('resize', handleWindowSizeChange);
+    return () => 
+    {
+      window.removeEventListener('resize', handleWindowSizeChange);
+    }
   }, []);
 
   const isMobile = width <= 480;
 
-  useEffect(() => {
-      const fetchUser = async () => {
-        try{
-          const res = await axios.get(`https://foodieland1234.herokuapp.com/users/`+ userId).then((response)=> {
+  useEffect(() => 
+  {
+      const fetchUser = async () => 
+      {
+        try {
+          const res = await axios.get(`${config.apiBaseUrl}users/`+ userId).then((response)=> 
+          {
             setUsers(response.data);
             setFollowers(response.data.user.followers);
             setFollowing(response.data.user.following);
             setLoading(false);
-        });
+          });
         } catch(e){
           console.log(e)
         }
@@ -56,11 +64,11 @@ const Profile = () => {
         fetchUser();
   }, [userId]);
 
-
   const { isLoading, error, data } = useQuery(
     ["relationship"],
     () =>
-      makeRequest.get(`/users/${currentUser.id}/followers`).then((res) => {
+      makeRequest.get(`users/${currentUser.id}/followers`).then((res) => 
+      {
         return res.data;
       })
   );
@@ -68,75 +76,83 @@ const Profile = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation(
-    (following) => {
-      if (following){
+    (following) => 
+    {
+      if (following)
+      {
         return makeRequest.post(`/users/unfollow/${userId}`, { "userId": currentUser.id });
       }
       return makeRequest.post(`/users/follow/${userId}`, { "userId": currentUser.id  });
     },
     {
-      onSuccess: () => {
+      onSuccess: () => 
+      {
         queryClient.invalidateQueries(["relationship"]);
-      },
+      }
     }
   );
 
-  const handleFollow = () => {
+  const handleFollow = () => 
+  {
     mutation.mutate(data.user.following.includes(`${userId}`));
   };
 
-  const createConvo = async () => {
+  const createConvo = async () => 
+  {
     const message = {
       senderId: currentUser.id,
       receiverId: userId
     };
-    try{
-      const res = await axios.post(`https://foodieland1234.herokuapp.com/conversation`, message)
+    try {
+      const res = await axios.post(`${config.apiBaseUrl}conversation`, message)
       navigate('/convo/chat')
     } catch(e){
       console.log(e)
     }
   }
 
-  if (loading) {
-    return     <div className="profile">
-    <div className="images">
-      <img
-        src="https://www.inkling.com/wp-content/uploads/2021/06/SD-default-image.png"
-        alt=""
-        className="cover"
-      />
-      <img
-        src="https://isobarscience.com/wp-content/uploads/2020/09/default-profile-picture1.jpg"
-        alt=""
-        className="profilePic"
-      />
-    </div>
-    <div className="profileContainer">
-      <div className="uInfo">
-        <div className="left">
+  if (loading) 
+  {
+    return (    
+      <div className="profile">
+        <div className="images">
+          <img
+            src="https://www.inkling.com/wp-content/uploads/2021/06/SD-default-image.png"
+            alt=""
+            className="cover"
+          />
+          <img
+            src="https://isobarscience.com/wp-content/uploads/2020/09/default-profile-picture1.jpg"
+            alt=""
+            className="profilePic"
+          />
         </div>
-        <div className="center">
-          <span>username</span>
-          <div className="info">
-            <div className="item">
-              <PlaceIcon />
-              <span>USA</span>
+        <div className="profileContainer">
+          <div className="uInfo">
+            <div className="left">
             </div>
-            <div className="item">
-              <LanguageIcon />
-              <span>English</span>
+            <div className="center">
+              <span>username</span>
+              <div className="info">
+                <div className="item">
+                  <PlaceIcon />
+                  <span>USA</span>
+                </div>
+                <div className="item">
+                  <LanguageIcon />
+                  <span>English</span>
+                </div>
+              </div>
+              <button>follow</button>
+            </div>
+            <div className="right">
+              <SendIcon />
+              <MoreVertIcon />
             </div>
           </div>
-          <button>follow</button>
-        </div>
-        <div className="right">
-          <SendIcon />
-          <MoreVertIcon />
         </div>
       </div>
-    </div>
-  </div>
+    )
   }
 
   return (
@@ -200,7 +216,7 @@ const Profile = () => {
 
         </div>
       {userId === currentUser.id ? <Share/>: ""}
-      {<Posts userId={userId} />}
+      {<Posts socket={socket} userId={userId} />}
       </div>
       {openEdit && <Update setOpenEdit={setOpenEdit} user={users.user}/>}
     </div>

@@ -3,6 +3,7 @@ import { AuthContext } from "../../Context/AuthContext";
 import { useContext } from "react";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import config from "../../config";
 
 const Stories = () => {
   const { currentUser } = useContext(AuthContext);
@@ -13,7 +14,7 @@ const Stories = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try{
-        const res = await axios.get(`https://foodieland1234.herokuapp.com/users/`+ currentUser.id).then((response)=> {
+        const res = await axios.get(`${config.apiBaseUrl}users/`+ currentUser.id).then((response)=> {
           setUsers(response.data);
           setLoading(false);
       });
@@ -35,17 +36,17 @@ const Stories = () => {
     {
       id: 2,
       name: "becklinda",
-      img: "Pictures/Posts/12.png",
+      img: "/Pictures/Posts/12.png",
     },
     {
       id: 3,
       name: "Sarah",
-      img: "Pictures/Posts/13.png",
+      img: "/Pictures/Posts/13.png",
     },
     {
       id: 4,
       name: "Joseph",
-      img: "Pictures/Posts/14.png",
+      img: "/Pictures/Posts/14.png",
     },
   ];
 

@@ -4,8 +4,10 @@ import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 import React from "react";
 import { useState } from "react";
+import config from "../../config";
 
-const Register = () => {
+const Register = () => 
+{
   const [inputs, setInputs] = useState({
     "username": "",
     "email": "",
@@ -15,18 +17,25 @@ const Register = () => {
   const [err, setErr] = useState(null);
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
+  const handleChange = (e) => 
+  {
     setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleClick = async (e) => {
+  const handleClick = async (e) => 
+  {
     e.preventDefault();
 
     try {
-      await axios.post("https://foodieland1234.herokuapp.com/register", inputs);
+      await axios.post(`${config.apiBaseUrl}register`, inputs);
       navigate("/login");
     } catch (err) {
-      setErr(err.response.data);
+      if(err.response.status = 401)
+      {
+        setErr(err.response.data.error.message);
+      } else {
+        setErr(err.response.data.error.message);
+      }
     }
   };
 
@@ -70,8 +79,8 @@ const Register = () => {
               name="password confirmation"
               onChange={handleChange}
             />
-              {err && err}
-              <button onClick={handleClick}>Register</button>
+            {err && <p style={{ color: "red", fontSize: "12px"}}>{err}</p>}
+            <button onClick={handleClick}>Register</button>
           </form>
         </div>
       </div>

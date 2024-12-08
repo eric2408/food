@@ -1,36 +1,69 @@
-import "./Share.scss";
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
 import TagIcon from '@mui/icons-material/Tag';
 import { AuthContext } from "../../Context/AuthContext";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { makeRequest } from "../../axiosRequest";
+import axios from "axios";
 import app from "../../firebase";
+import config from "../../config";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import "./Share.scss";
 
-const Share = () => {
-
+const Share = () => 
+{
   const { currentUser } = useContext(AuthContext);
   const [file, setFile] = useState(null);
   const [desc, setDesc] = useState("");
   const [img, setImg] = useState("");
+  const [users, setUsers] = useState([]);
+  const [retryCount, setRetryCount] = useState(0);
+  const [imageUrl, setImageUrl] = useState(
+    "https://isobarscience.com/wp-content/uploads/2020/09/default-profile-picture1.jpg"
+  );
 
-  const upload = async () => {
+  useEffect(() => 
+  {
+    const fetchUser = async () => 
+    {
+      try {
+        const res = await axios.get(`${config.apiBaseUrl}users/`+ currentUser.id).then((response)=> 
+        {
+          setUsers(response.data);
+          setImageUrl(response.data.user.image_url);
+        });
+      } catch(e){
+        console.log(e)
+      }
+    };
+    fetchUser();
+    if (retryCount < 3) 
+    {
+      setTimeout(() => 
+      {
+        setRetryCount(retryCount + 1);
+      }, 3000); // Retry after 3 seconds
+    }
+  }, [retryCount]);
 
+  const upload = async () => 
+  {
       const fileName = new Date().getTime() + file.name;
       const storage = getStorage(app);
       const storageRef = ref(storage, fileName);
       const uploadTask = uploadBytesResumable(storageRef, file);
   
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve, reject) => 
+      {
         uploadTask.on('state_changed', 
         (snapshot) => {
           // Observe state change events such as progress, pause, and resume
           // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
           const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           console.log('Upload is ' + progress + '% done');
-          switch (snapshot.state) {
+          switch (snapshot.state) 
+          {
             case 'paused':
               console.log('Upload is paused');
               break;
@@ -58,21 +91,24 @@ const Share = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation(
-    (newPost) => {
+    (newPost) => 
+    {
       return makeRequest.post(`/messages/${currentUser.id}/new`, newPost);
     },
     {
-      onSuccess: () => {
+      onSuccess: () => 
+      {
         queryClient.invalidateQueries(["posts"]);
         window.location.reload();
       },
     }
   );
 
-
-  const handleClick = async (e) => {
+  const handleClick = async (e) => 
+  {
     e.preventDefault();
-    if(file){
+    if(file)
+    {
       const url = await upload();
       mutation.mutate({ "text": desc, "images": url});
     }
@@ -86,7 +122,7 @@ const Share = () => {
         <div className="top">
           <div className="left">
             <img
-              src={"https://isobarscience.com/wp-content/uploads/2020/09/default-profile-picture1.jpg"}
+              src={imageUrl}
               alt=""
             />
             <input type="text" 

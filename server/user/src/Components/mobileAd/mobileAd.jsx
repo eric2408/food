@@ -1,5 +1,6 @@
 import React from 'react'
 import "./mobileAd.scss";
+import config from "../../config";
 
 function MobileAd() {
   return (
@@ -8,7 +9,7 @@ function MobileAd() {
         <span>Sponsored</span>
             <div className="userr">
                 <img
-                src="https://foodieland1234.herokuapp.com/Pictures/Ad.png"
+                src={`/Pictures/Ad.png`}
                 alt=""
                 />
             </div>
