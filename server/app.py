@@ -518,6 +518,10 @@ def add(userId):
     print(f" users list: ${users}")
     socketio.emit("getUsers", users)
 
+@socketio.on("requestUsers")
+def send_users():
+    emit("getUsers", users)
+
 @socketio.on("sendMessage")
 def send(msg):
     user = getU(msg["receiverId"])

@@ -84,16 +84,25 @@ export default function Messenger({ socket })
 
   useEffect(() => 
   {
-    if(!isLoading)
+    if (!isLoading && socket.current) 
     {
-      socket.current.on("getUsers", (users) => 
+      socket.current.emit("requestUsers");
+
+      const handleGetUsers = (users) => 
       {
-        setOnlineUsers(
-          isFollowing.filter((f) => users.some((u) => `${u.userId}` === f))
-        );
-      });
+        console.log("users: ", users);
+        const userIds = users.map((u) => `${u.userId}`);
+        const filteredOnlineUsers = isFollowing.filter((f) => userIds.includes(f));
+        setOnlineUsers(filteredOnlineUsers);
+      };
+  
+      socket.current.on("getUsers", handleGetUsers);
+  
+      return () => {
+        socket.current.off("getUsers", handleGetUsers);
+      };
     }
-  }, [currentUser.id, isLoading]);
+  }, [isLoading, isFollowing, currentUser.id, socket]);
 
   useEffect(() => 
   {

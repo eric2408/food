@@ -32,7 +32,11 @@ function App()
     // Only initiate socket connection if the user is logged in
     if (!currentUser) return;
 
-    socket.current = io(`${config.wsBaseUrl}`);
+    socket.current = io(`${config.wsBaseUrl}`, {
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+    });
 
     // Handle connection
     socket.current.on("connect", () => 
