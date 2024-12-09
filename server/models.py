@@ -48,11 +48,6 @@ class Likes(db.Model):
         db.ForeignKey('messages.id', ondelete='cascade')
     )
 
-    # Add unique constraint on user_id and message_id combination
-    __table_args__ = (
-        db.UniqueConstraint('user_id', 'message_id', name='_user_message_uc'),
-    )
-
 class Comments(db.Model):
     """Mapping user comments."""
 
